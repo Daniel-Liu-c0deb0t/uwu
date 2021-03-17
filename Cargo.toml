@@ -1,0 +1,7 @@
+[package]
+name = "uwu"
+version = "0.1.0"
+authors = ["c0deb0t <daniel.liu02@gmail.com>"]
+edition = "2018"
+
+[dependencies]
