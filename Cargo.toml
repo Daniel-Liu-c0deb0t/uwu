@@ -5,3 +5,12 @@ authors = ["c0deb0t <daniel.liu02@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = "^2.33"
+
+[lib]
+name = "uwu_ifier"
+path = "src/lib.rs"
+
+[[bin]]
+name = "uwu"
+path = "src/main.rs"

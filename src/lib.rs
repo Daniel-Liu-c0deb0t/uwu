@@ -11,8 +11,9 @@ use rng::XorShift32;
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
 pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
-    assert!(len <= bytes.len());
-    assert!(bytes.len() % 16 == 0);
+    assert!(round_up(len, 16) <= bytes.len());
+    assert!(temp_bytes1.len() >= bytes.len() * 4);
+    assert!(temp_bytes2.len() >= bytes.len() * 4);
 
     let mut rng = XorShift32::new(b"uwu!");
 
@@ -97,6 +98,8 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
     let splat_r = _mm_set1_epi8(b'r' as i8);
     let splat_w = _mm_set1_epi8(b'w' as i8);
     let splat_space = _mm_set1_epi8(b' ' as i8);
+    let splat_tab = _mm_set1_epi8(b'\t' as i8);
+    let splat_newline = _mm_set1_epi8(b'\n' as i8);
     let indexes = _mm_set_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
     let iter_len = round_up(len, 16);
@@ -105,13 +108,16 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
         // replace 'l' and 'r' with 'w'
         let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
         let vec_but_lower = _mm_or_si128(vec, bit5);
-        let alpha_mask = _mm_or_si128(_mm_cmpgt_epi8(vec_but_lower, splat_backtick), _mm_cmpgt_epi8(splat_open_brace, vec_but_lower));
+        let alpha_mask = _mm_and_si128(_mm_cmpgt_epi8(vec_but_lower, splat_backtick), _mm_cmpgt_epi8(splat_open_brace, vec_but_lower));
         let replace_mask = _mm_or_si128(_mm_cmpeq_epi8(vec_but_lower, splat_l), _mm_cmpeq_epi8(vec_but_lower, splat_r));
         let replaced = _mm_blendv_epi8(vec_but_lower, splat_w, replace_mask);
         let mut res = _mm_blendv_epi8(vec, replaced, alpha_mask);
 
-        // sometimes, add a stutter if there is a ' ' followed by any letter
-        let space_mask = _mm_cmpeq_epi8(vec, splat_space);
+        // sometimes, add a stutter if there is a space, tab, or newline followed by any letter
+        let space_mask = _mm_or_si128(
+            _mm_cmpeq_epi8(vec, splat_space),
+            _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
+        );
         let space_and_alpha_mask = _mm_and_si128(_mm_slli_si128(space_mask, 1), alpha_mask);
         let stutter_mask = _mm_movemask_epi8(space_and_alpha_mask) as u32;
 
@@ -145,13 +151,8 @@ mod tests {
 
     #[test]
     fn test_replace_and_stutter_sse() {
-        let mut temp_bytes1 = Vec::with_capacity(1024);
-        let mut temp_bytes2 = Vec::with_capacity(1024 * 2);
-
-        unsafe {
-            temp_bytes1.set_len(temp_bytes1.capacity());
-            temp_bytes2.set_len(temp_bytes2.capacity());
-        }
+        let mut temp_bytes1 = [0u8; 1024];
+        let mut temp_bytes2 = [0u8; 1024];
 
         let mut bytes = "Hello world! blah blah... hi, this is a sentence.".as_bytes().to_owned();
         let len = bytes.len();
