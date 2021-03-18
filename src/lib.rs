@@ -3,8 +3,6 @@ use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
-use std::ptr;
-
 pub mod rng;
 use rng::XorShift32;
 
@@ -52,6 +50,9 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
     let splat_period = _mm_set1_epi8(b'.' as i8);
     let splat_comma = _mm_set1_epi8(b',' as i8);
+    let splat_space = _mm_set1_epi8(b' ' as i8);
+    let splat_tab = _mm_set1_epi8(b'\t' as i8);
+    let splat_newline = _mm_set1_epi8(b'\n' as i8);
     let indexes = _mm_set_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
     let lut_bits = LUT.len().trailing_zeros() as u32;
@@ -63,22 +64,28 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
         let mut punctuation_mask = _mm_or_si128(_mm_cmpeq_epi8(vec, splat_comma), _mm_cmpeq_epi8(vec, splat_period));
         let mut multiple_mask = _mm_and_si128(punctuation_mask, _mm_slli_si128(punctuation_mask, 1));
         multiple_mask = _mm_or_si128(multiple_mask, _mm_srli_si128(multiple_mask, 1));
-        punctuation_mask = _mm_andnot_si128(multiple_mask, punctuation_mask);
+        let space_mask = _mm_or_si128(
+            _mm_cmpeq_epi8(vec, splat_space),
+            _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
+        );
+        punctuation_mask = _mm_andnot_si128(
+            multiple_mask,
+            _mm_and_si128(punctuation_mask, _mm_srli_si128(space_mask, 1))
+        );
         let insert_mask = _mm_movemask_epi8(punctuation_mask) as u32;
 
         _mm_storeu_si128(out_ptr as *mut __m128i, vec);
 
         if insert_mask != 0 {
-            let insert_idx = insert_mask.trailing_zeros() as usize;
+            let insert_idx = insert_mask.trailing_zeros() as usize + 1;
             let insert = LUT.get_unchecked(rng.gen_bits(lut_bits) as usize);
             let insert_vec = _mm_load_si128(insert.bytes.0.as_ptr() as *const __m128i);
             _mm_storeu_si128(out_ptr.add(insert_idx) as *mut __m128i, insert_vec);
             // shuffle to shift by amount only known at runtime
-            // make sure to skip the punctuation
-            let rest_vec = _mm_shuffle_epi8(vec, _mm_add_epi8(indexes, _mm_set1_epi8(insert_idx as i8 + 1)));
+            let rest_vec = _mm_shuffle_epi8(vec, _mm_add_epi8(indexes, _mm_set1_epi8(insert_idx as i8)));
             _mm_storeu_si128(out_ptr.add(insert_idx + insert.len) as *mut __m128i, rest_vec);
-            out_ptr = out_ptr.add(insert.len - 1);
-            len += insert.len - 1;
+            out_ptr = out_ptr.add(insert.len);
+            len += insert.len;
         }
 
         out_ptr = out_ptr.add(16);
@@ -125,13 +132,12 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
 
         if stutter_mask != 0 {
             let stutter_idx = stutter_mask.trailing_zeros() as usize;
-            ptr::write(out_ptr.add(stutter_idx), *in_ptr.add(i + stutter_idx));
-            ptr::write(out_ptr.add(stutter_idx + 1), b'-');
             // shuffle to shift by amount only known at runtime
             res = _mm_shuffle_epi8(res, _mm_add_epi8(indexes, _mm_set1_epi8(stutter_idx as i8)));
+            _mm_storeu_si128(out_ptr.add(stutter_idx) as *mut __m128i, _mm_insert_epi8(res, b'-' as i32, 1));
             // decide whether to stutter in a branchless way
             // a branch would mispredict often since this is random
-            let increment = if rng.gen_bool() { 2 } else { 0 };
+            let increment = if rng.gen_bits(2) == 0 { 2 } else { 0 };
             _mm_storeu_si128(out_ptr.add(stutter_idx + increment) as *mut __m128i, res);
             out_ptr = out_ptr.add(increment);
             len += increment;
@@ -159,6 +165,6 @@ mod tests {
         bytes.resize(round_up(len, 16), 0);
         let res_bytes = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
-        assert_eq!(res, "hewwo wowwd! bwah b-bwah... hi (⑅˘꒳˘) this i-is a sentence OwO");
+        assert_eq!(res, "hewwo w-wowwd! bwah bwah... hi, (⑅˘꒳˘) this is a sentence.");
     }
 }

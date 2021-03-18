@@ -34,7 +34,7 @@ the goal is to be this universe's fastest text uwu-ifier
 ### why isn't this readme uwu'd?
 so its readable
 
-if u happen to find uwu'd text more readable, there's always an [uwu'd]() version
+if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.md) version
 
 ### ok i want uwu'd text, how do i run this myself?
 1. clone this repo
