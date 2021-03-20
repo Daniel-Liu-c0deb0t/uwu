@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 clap = "^2.33"
+parking_lot = "^0.11"
 
 [lib]
 name = "uwu_ifier"

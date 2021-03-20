@@ -6,6 +6,11 @@ use std::arch::x86_64::*;
 pub mod rng;
 use rng::XorShift32;
 
+// TODO: n -> ny
+// TODO: LUT AOS -> SOA
+// TODO: ~
+// TODO: ref not aligned to 16 byte boundary
+
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
 pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
