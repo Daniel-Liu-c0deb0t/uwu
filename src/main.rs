@@ -8,8 +8,9 @@ use std::io::prelude::*;
 use std::io;
 use std::fs::File;
 use std::sync::Arc;
-use std::sync::atomic::*;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
+use std::collections::HashMap;
 
 const LEN: usize = 1 << 14;
 
@@ -56,12 +57,15 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
     let reader_idx = Arc::new(Mutex::new((reader, 0usize)));
     let writer = Arc::new(Mutex::new(writer));
     let write_idx = Arc::new(AtomicUsize::new(0));
+    let idx_thread = Arc::new(Mutex::new(HashMap::with_capacity(thread_count)));
+
     let mut threads = Vec::with_capacity(thread_count);
 
     for _i in 0..thread_count {
         let reader_idx = Arc::clone(&reader_idx);
         let writer = Arc::clone(&writer);
         let write_idx = Arc::clone(&write_idx);
+        let idx_thread = Arc::clone(&idx_thread);
 
         threads.push(thread::spawn(move || {
             let mut bytes = [0u8; LEN];
@@ -69,23 +73,32 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
             let mut temp_bytes2 = [0u8; LEN * 4];
 
             loop {
-                let (len, read_idx, done) = {
+                let (len, read_idx) = {
                     let mut curr_reader_idx = reader_idx.lock();
                     curr_reader_idx.1 += 1;
                     let len = read_as_much_as_possible(&mut curr_reader_idx.0, &mut bytes);
-                    (len, curr_reader_idx.1 - 1, len < LEN)
+                    (len, curr_reader_idx.1 - 1)
                 };
 
                 let res = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
+
+                idx_thread.lock().insert(read_idx, thread::current());
                 while write_idx.load(Ordering::Acquire) != read_idx {
-                    // literally won't have anything to do until another thread updates
-                    thread::yield_now();
+                    // literally won't have anything to do until another thread updates write_idx
+                    thread::park();
                 }
                 // at this point, only one thread is using writer at one time
                 writer.lock().write_all(res).unwrap();
                 write_idx.fetch_add(1, Ordering::Release);
+                {
+                    let mut map = idx_thread.lock();
+                    map.remove(&read_idx);
+                    if let Some(next_thread) = map.get(&(read_idx + 1)) {
+                        next_thread.unpark();
+                    }
+                }
 
-                if done {
+                if len < LEN {
                     break;
                 }
             }

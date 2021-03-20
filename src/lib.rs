@@ -10,6 +10,7 @@ use rng::XorShift32;
 // TODO: LUT AOS -> SOA
 // TODO: ~
 // TODO: ref not aligned to 16 byte boundary
+// TODO: parallel buffer cuts off
 
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
