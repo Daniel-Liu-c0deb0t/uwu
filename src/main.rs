@@ -11,10 +11,11 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 use std::collections::HashMap;
+use std::time::Instant;
 
-// should be small enough so stuff fits in L1 cache
+// should be small enough so stuff fits in L1/L2 cache
 // but big enough so each thread has enough work to do
-const LEN: usize = 1 << 12;
+const LEN: usize = 1 << 16;
 
 fn main() {
     let matches = App::new("uwu")
@@ -52,7 +53,10 @@ fn main() {
         Box::new(File::create(out_path).unwrap())
     };
 
+    let start_time = Instant::now();
     parallel_uwu(reader, writer, thread_count);
+    let duration = start_time.elapsed();
+    eprintln!("time taken: {} ms", duration.as_millis());
 }
 
 fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thread_count: usize) {
@@ -71,8 +75,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 
         threads.push(thread::spawn(move || {
             let mut bytes = [0u8; LEN];
-            let mut temp_bytes1 = [0u8; LEN * 5];
-            let mut temp_bytes2 = [0u8; LEN * 5];
+            let mut temp_bytes1 = [0u8; LEN * 8];
+            let mut temp_bytes2 = [0u8; LEN * 8];
 
             loop {
                 let (len, read_idx) = {

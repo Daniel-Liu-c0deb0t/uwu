@@ -12,8 +12,8 @@ fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
 pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
     assert!(round_up(len, 16) <= bytes.len());
-    assert!(temp_bytes1.len() >= bytes.len() * 5);
-    assert!(temp_bytes2.len() >= bytes.len() * 5);
+    assert!(temp_bytes1.len() >= bytes.len() * 8);
+    assert!(temp_bytes2.len() >= bytes.len() * 8);
 
     let mut rng = XorShift32::new(b"uwu!");
 
@@ -218,7 +218,7 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
             _mm_storeu_si128(out_ptr.add(stutter_idx) as *mut __m128i, _mm_insert_epi8(res, b'-' as i32, 1));
             // decide whether to stutter in a branchless way
             // a branch would mispredict often since this is random
-            let increment = if rng.gen_bits(2) == 0 { 2 } else { 0 };
+            let increment = if rng.gen_bool() { 2 } else { 0 };
             _mm_storeu_si128(out_ptr.add(stutter_idx + increment) as *mut __m128i, res);
             out_ptr = out_ptr.add(increment);
             len += increment;
