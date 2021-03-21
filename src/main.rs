@@ -54,12 +54,17 @@ fn main() {
     };
 
     let start_time = Instant::now();
-    parallel_uwu(reader, writer, thread_count);
+    let (input_size, output_size) = parallel_uwu(reader, writer, thread_count);
     let duration = start_time.elapsed();
     eprintln!("time taken: {} ms", duration.as_millis());
+    eprintln!("input size: {} bytes", input_size);
+    eprintln!("output size: {} bytes", output_size);
+    eprintln!("throughput: {:.5} gb/s", (input_size as f64) / (duration.as_nanos() as f64));
 }
 
-fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thread_count: usize) {
+fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thread_count: usize) -> (usize, usize) {
+    let input_size = Arc::new(AtomicUsize::new(0));
+    let output_size = Arc::new(AtomicUsize::new(0));
     let reader_idx = Arc::new(Mutex::new((reader, 0usize)));
     let writer = Arc::new(Mutex::new(writer));
     let write_idx = Arc::new(AtomicUsize::new(0));
@@ -68,6 +73,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
     let mut threads = Vec::with_capacity(thread_count);
 
     for _i in 0..thread_count {
+        let input_size = Arc::clone(&input_size);
+        let output_size = Arc::clone(&output_size);
         let reader_idx = Arc::clone(&reader_idx);
         let writer = Arc::clone(&writer);
         let write_idx = Arc::clone(&write_idx);
@@ -86,7 +93,9 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
                     (len, curr_reader_idx.1 - 1)
                 };
 
+                input_size.fetch_add(len, Ordering::Relaxed);
                 let res = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
+                output_size.fetch_add(res.len(), Ordering::Relaxed);
 
                 idx_thread.lock().insert(read_idx, thread::current());
                 while write_idx.load(Ordering::Acquire) != read_idx {
@@ -114,6 +123,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
     for thread in threads.into_iter() {
         thread.join().unwrap();
     }
+
+    (Arc::try_unwrap(input_size).unwrap().into_inner(), Arc::try_unwrap(output_size).unwrap().into_inner())
 }
 
 fn read_as_much_as_possible(reader: &mut Box<dyn Read + Send>, mut bytes: &mut [u8]) -> usize {
