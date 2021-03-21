@@ -18,7 +18,7 @@ pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], 
     let mut rng = XorShift32::new(b"uwu!");
 
     unsafe {
-        len = nya_sse(bytes, len, temp_bytes1);
+        len = nya_ify_sse(bytes, len, temp_bytes1);
         len = replace_and_stutter_sse(&mut rng, temp_bytes1, len, temp_bytes2);
         len = emoji_sse(&mut rng, temp_bytes2, len, temp_bytes1);
         &temp_bytes1[..len]
@@ -133,11 +133,11 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
     len
 }
 
-unsafe fn nya_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
+unsafe fn nya_ify_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
     let in_ptr = in_bytes.as_ptr();
     let mut out_ptr = out_bytes.as_mut_ptr();
 
-    let splat_uppercase_n = _mm_set1_epi8(b'N' as i8);
+    let bit5 = _mm_set1_epi8(0b0010_0000);
     let splat_n = _mm_set1_epi8(b'n' as i8);
     let splat_space = _mm_set1_epi8(b' ' as i8);
     let splat_tab = _mm_set1_epi8(b'\t' as i8);
@@ -148,7 +148,7 @@ unsafe fn nya_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usiz
 
     for i in (0..iter_len).step_by(16) {
         let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
-        let n_mask = _mm_or_si128(_mm_cmpeq_epi8(vec, splat_uppercase_n), _mm_cmpeq_epi8(vec, splat_n));
+        let n_mask = _mm_cmpeq_epi8(_mm_or_si128(vec, bit5), splat_n);
         let space_mask = _mm_or_si128(
             _mm_cmpeq_epi8(vec, splat_space),
             _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
