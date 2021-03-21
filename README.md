@@ -16,20 +16,23 @@ tldr: 128-bit simd vectorization plus some big brain algos
 
 after hours of research, i've finally understood the essence of uwu'd text
 
-there are 4 transformations:
-1. replace `l` and `r` with `w`
-2. sometimes stutter (`hi` -> `h-hi`)
-3. sometimes replace `,` or `.` with a text emoji
-4. replace `small` with `smol`, `cute` with `cuuuuute`, `fluff` with `floof`
+there are a few transformations:
+1. nya-ify (eg. `no` -> `nyo`, `naruhodo` -> `nyaruhodo`)
+2. replace `l` and `r` with `w`
+3. stutter sometimes (`hi` -> `h-hi`)
+4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
+5. replace `small` with `smol`, `cute` with `cuuuuute`, `fluff` with `floof`
 
-these transformations can be pretty easily applied as multiple passes that take advantage of
-sse vector intrinsics to process 16 bytes at once
+these transformation passes take advantage of sse vector intrinsics to process 16 bytes at once
 
-utf-8 is handled elegantly by simply not changing non-ascii characters
+multithreading is supported, so you can exploit all of your cpu cores for the noble goal
+of uwu-ing massive amounts of text
 
-uwu-ification is done with multiple threads after chunks of a file are read in
+utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
 
-the goal is to be this universe's fastest text uwu-ifier
+unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
+if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
+they won't escape so easily next time.
 
 ### why isn't this readme uwu'd?
 so its readable

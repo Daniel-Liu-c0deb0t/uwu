@@ -3,52 +3,79 @@ use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
+use std::ptr;
+
 pub mod rng;
 use rng::XorShift32;
-
-// TODO: n -> ny
-// TODO: LUT AOS -> SOA
-// TODO: ~
-// TODO: ref not aligned to 16 byte boundary
-// TODO: parallel buffer cuts off
 
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
 pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
     assert!(round_up(len, 16) <= bytes.len());
-    assert!(temp_bytes1.len() >= bytes.len() * 4);
-    assert!(temp_bytes2.len() >= bytes.len() * 4);
+    assert!(temp_bytes1.len() >= bytes.len() * 5);
+    assert!(temp_bytes2.len() >= bytes.len() * 5);
 
     let mut rng = XorShift32::new(b"uwu!");
 
     unsafe {
-        len = replace_and_stutter_sse(&mut rng, bytes, len, temp_bytes1);
-        len = emoji_sse(&mut rng, temp_bytes1, len, temp_bytes2);
-        &temp_bytes2[..len]
+        len = nya_sse(bytes, len, temp_bytes1);
+        len = replace_and_stutter_sse(&mut rng, temp_bytes1, len, temp_bytes2);
+        len = emoji_sse(&mut rng, temp_bytes2, len, temp_bytes1);
+        &temp_bytes1[..len]
     }
 }
 
 #[repr(align(16))]
-struct A(&'static [u8; 16]);
+struct A([u8; 16]);
 
-struct Insert {
-    bytes: A,
-    len: usize
+const fn str_to_bytes(s: &str) -> A {
+    let bytes = s.as_bytes();
+    let mut res = A([0u8; 16]);
+    let mut i = 0;
+
+    while i < bytes.len() {
+        res.0[i] = bytes[i];
+        i += 1;
+    }
+
+    res
 }
 
-static LUT: [Insert; 8] = [
-    Insert { bytes: A(b" rawr x3        "), len: 8 },
-    Insert { bytes: A(b" OwO            "), len: 4 },
-    Insert { bytes: A(b" UwU            "), len: 4 },
-    Insert { bytes: A(b" o.O            "), len: 4 },
-    Insert { bytes: A(b" -.-            "), len: 4 },
-    // " 𝓤𝔀𝓤"
-    Insert { bytes: A(&[0x20, 0xf0, 0x9d, 0x93, 0xa4, 0xf0, 0x9d, 0x94, 0x80, 0xf0, 0x9d, 0x93, 0xa4, 0, 0, 0]), len: 13 },
-    // " (⑅˘꒳˘)"
-    Insert { bytes: A(&[0x20, 0x28, 0xe2, 0x91, 0x85, 0xcb, 0x98, 0xea, 0x92, 0xb3, 0xcb, 0x98, 0x29, 0, 0, 0]), len: 13 },
-    // " (ꈍᴗꈍ)"
-    Insert { bytes: A(&[0x20, 0x28, 0xea, 0x88, 0x8d, 0xe1, 0xb4, 0x97, 0xea, 0x88, 0x8d, 0x29, 0, 0, 0, 0]), len: 12 }
+const LUT_SIZE: usize = 8;
+static LUT: [A; LUT_SIZE] = [
+    str_to_bytes(" rawr x3"),
+    str_to_bytes(" OwO"),
+    str_to_bytes(" UwU"),
+    str_to_bytes(" o.O"),
+    str_to_bytes(" -.-"),
+    str_to_bytes(" 𝓤𝔀𝓤"),
+    str_to_bytes(" (⑅˘꒳˘)"),
+    str_to_bytes(" (ꈍᴗꈍ)")
 ];
+
+const fn bytes_len(b: &[u8]) -> usize {
+    let mut len = 0;
+
+    while len < b.len() && b[len] != 0 {
+        len += 1;
+    }
+
+    len
+}
+
+const fn get_len(a: &[A]) -> [usize; LUT_SIZE] {
+    let mut res = [0usize; LUT_SIZE];
+    let mut i = 0;
+
+    while i < a.len() {
+        res[i] = bytes_len(&a[i].0);
+        i += 1;
+    }
+
+    res
+}
+
+static LUT_LEN: [usize; LUT_SIZE] = get_len(&LUT);
 
 unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
     let in_ptr = in_bytes.as_ptr();
@@ -56,6 +83,7 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
     let splat_period = _mm_set1_epi8(b'.' as i8);
     let splat_comma = _mm_set1_epi8(b',' as i8);
+    let splat_exclamation = _mm_set1_epi8(b'!' as i8);
     let splat_space = _mm_set1_epi8(b' ' as i8);
     let splat_tab = _mm_set1_epi8(b'\t' as i8);
     let splat_newline = _mm_set1_epi8(b'\n' as i8);
@@ -67,7 +95,10 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
     for i in (0..iter_len).step_by(16) {
         let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
-        let mut punctuation_mask = _mm_or_si128(_mm_cmpeq_epi8(vec, splat_comma), _mm_cmpeq_epi8(vec, splat_period));
+        let mut punctuation_mask = _mm_or_si128(
+            _mm_cmpeq_epi8(vec, splat_comma),
+            _mm_or_si128(_mm_cmpeq_epi8(vec, splat_period), _mm_cmpeq_epi8(vec, splat_exclamation))
+        );
         let mut multiple_mask = _mm_and_si128(punctuation_mask, _mm_slli_si128(punctuation_mask, 1));
         multiple_mask = _mm_or_si128(multiple_mask, _mm_srli_si128(multiple_mask, 1));
         let space_mask = _mm_or_si128(
@@ -84,14 +115,58 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
         if insert_mask != 0 {
             let insert_idx = insert_mask.trailing_zeros() as usize + 1;
-            let insert = LUT.get_unchecked(rng.gen_bits(lut_bits) as usize);
-            let insert_vec = _mm_load_si128(insert.bytes.0.as_ptr() as *const __m128i);
+            let rand_idx = rng.gen_bits(lut_bits) as usize;
+            let insert = LUT.get_unchecked(rand_idx);
+            let insert_len = *LUT_LEN.get_unchecked(rand_idx);
+            let insert_vec = _mm_load_si128(insert.0.as_ptr() as *const __m128i);
             _mm_storeu_si128(out_ptr.add(insert_idx) as *mut __m128i, insert_vec);
             // shuffle to shift by amount only known at runtime
             let rest_vec = _mm_shuffle_epi8(vec, _mm_add_epi8(indexes, _mm_set1_epi8(insert_idx as i8)));
-            _mm_storeu_si128(out_ptr.add(insert_idx + insert.len) as *mut __m128i, rest_vec);
-            out_ptr = out_ptr.add(insert.len);
-            len += insert.len;
+            _mm_storeu_si128(out_ptr.add(insert_idx + insert_len) as *mut __m128i, rest_vec);
+            out_ptr = out_ptr.add(insert_len);
+            len += insert_len;
+        }
+
+        out_ptr = out_ptr.add(16);
+    }
+
+    len
+}
+
+unsafe fn nya_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
+    let in_ptr = in_bytes.as_ptr();
+    let mut out_ptr = out_bytes.as_mut_ptr();
+
+    let splat_uppercase_n = _mm_set1_epi8(b'N' as i8);
+    let splat_n = _mm_set1_epi8(b'n' as i8);
+    let splat_space = _mm_set1_epi8(b' ' as i8);
+    let splat_tab = _mm_set1_epi8(b'\t' as i8);
+    let splat_newline = _mm_set1_epi8(b'\n' as i8);
+    let indexes = _mm_set_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
+
+    let iter_len = round_up(len, 16);
+
+    for i in (0..iter_len).step_by(16) {
+        let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
+        let n_mask = _mm_or_si128(_mm_cmpeq_epi8(vec, splat_uppercase_n), _mm_cmpeq_epi8(vec, splat_n));
+        let space_mask = _mm_or_si128(
+            _mm_cmpeq_epi8(vec, splat_space),
+            _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
+        );
+        let space_and_n_mask = _mm_and_si128(_mm_slli_si128(space_mask, 1), n_mask);
+        let mut nya_mask = _mm_movemask_epi8(space_and_n_mask) as u32;
+
+        _mm_storeu_si128(out_ptr as *mut __m128i, vec);
+
+        while nya_mask != 0 {
+            let nya_idx = nya_mask.trailing_zeros() as usize;
+            ptr::write(out_ptr.add(nya_idx + 1), b'y');
+            // shuffle to shift by amount only known at runtime
+            let shifted = _mm_shuffle_epi8(vec, _mm_add_epi8(indexes, _mm_set1_epi8(nya_idx as i8 + 1)));
+            _mm_storeu_si128(out_ptr.add(nya_idx + 2) as *mut __m128i, shifted);
+            out_ptr = out_ptr.add(1);
+            len += 1;
+            nya_mask &= nya_mask - 1;
         }
 
         out_ptr = out_ptr.add(16);

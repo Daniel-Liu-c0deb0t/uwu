@@ -12,7 +12,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::thread;
 use std::collections::HashMap;
 
-const LEN: usize = 1 << 14;
+// should be small enough so stuff fits in L1 cache
+// but big enough so each thread has enough work to do
+const LEN: usize = 1 << 12;
 
 fn main() {
     let matches = App::new("uwu")
@@ -69,8 +71,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 
         threads.push(thread::spawn(move || {
             let mut bytes = [0u8; LEN];
-            let mut temp_bytes1 = [0u8; LEN * 4];
-            let mut temp_bytes2 = [0u8; LEN * 4];
+            let mut temp_bytes1 = [0u8; LEN * 5];
+            let mut temp_bytes2 = [0u8; LEN * 5];
 
             loop {
                 let (len, read_idx) = {
