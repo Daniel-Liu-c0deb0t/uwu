@@ -8,6 +8,12 @@ use std::ptr;
 pub mod rng;
 use rng::XorShift32;
 
+pub mod bitap;
+use bitap::Bitap8x16;
+
+#[repr(align(16))]
+struct A([u8; 16]);
+
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
 pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
@@ -24,9 +30,6 @@ pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], 
         &temp_bytes1[..len]
     }
 }
-
-#[repr(align(16))]
-struct A([u8; 16]);
 
 const fn str_to_bytes(s: &str) -> A {
     let bytes = s.as_bytes();

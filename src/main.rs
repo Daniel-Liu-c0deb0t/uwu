@@ -81,9 +81,9 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
         let idx_thread = Arc::clone(&idx_thread);
 
         threads.push(thread::spawn(move || {
-            let mut bytes = [0u8; LEN];
-            let mut temp_bytes1 = [0u8; LEN * 8];
-            let mut temp_bytes2 = [0u8; LEN * 8];
+            let mut bytes = vec![0u8; LEN];
+            let mut temp_bytes1 = vec![0u8; LEN * 8];
+            let mut temp_bytes2 = vec![0u8; LEN * 8];
 
             loop {
                 let (len, read_idx) = {
