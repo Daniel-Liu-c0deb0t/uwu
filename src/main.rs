@@ -1,4 +1,4 @@
-use uwu_ifier::uwu_ify_sse;
+use uwuifier::uwu_ify_sse;
 
 use clap::{App, Arg};
 

@@ -1,12 +1,21 @@
-# uwu
-fastest text uwu-ifier in the west
+# uwuify
+fastest text uwuifier in the west
+
+transforms
+```
+Hey... I think I really love you. Do you want a headpat?
+```
+into
+```
+hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?
+```
 
 ## faq
 ### what?
 u want large amounts of text uwu'd in a smol amount of time
 
 ### where?
-your computer, if it has a recent x86 cpu (intel, amd) that support sse4.1
+ur computer, if it has a recent x86 cpu (intel, amd) that supports sse4.1
 
 ### why?
 why not?
@@ -17,6 +26,7 @@ tldr: 128-bit simd vectorization plus some big brain algos
 <details>
 <summary>click for more info</summary>
 <p>
+
 after hours of research, i've finally understood the essence of uwu'd text
 
 there are a few transformations:
@@ -33,7 +43,7 @@ for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wi
 character-level detection within simd registers, its all masking and shifting to simulate basic state
 machines in parallel
 
-multithreading is supported, so you can exploit all of your cpu cores for the noble goal
+multithreading is supported, so u can exploit all of ur cpu cores for the noble goal
 of uwu-ing massive amounts of text
 
 utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
@@ -41,20 +51,25 @@ utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
 unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
 if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
 *they won't escape so easily next time*
+
 </p>
 </details>
 
 ### ok i want uwu'd text, how do i run this myself?
 1. install rust: run `curl https://sh.rustup.rs -sSf | sh` on unix,
 or go [here](https://www.rust-lang.org/tools/install) for more options
-2. run `cargo install uwu`
-3. run `uwu` which will read from stdin and output to stdout. make sure u
-press ctrl + d after you type stuff in stdin
+2. run `cargo install uwuify`
+3. run `uwuify` which will read from stdin and output to stdout. make sure u
+press ctrl + d after u type stuff in stdin
+
+if you are having trouble running `uwuify`, make sure you have `~/.cargo/bin`
+in your `$PATH`
 
 #### build from this repo
 <details>
 <summary>click for more info</summary>
 <p>
+
 1. install rust
 2. run `git clone https://github.com/Daniel-Liu-c0deb0t/uwu.git && cd uwu`
 3. run `cargo run --release`
@@ -70,6 +85,7 @@ press ctrl + d after you type stuff in stdin
 2. run `curl -OL http://mattmahoney.net/dc/enwik8.zip && unzip enwik8.zip`
 3. run `curl -OL http://mattmahoney.net/dc/enwik9.zip && unzip enwik9.zip`
 4. run `cd .. && ./bench.sh`
+
 </p>
 </details>
 
@@ -79,11 +95,13 @@ tldr: can be almost as fast as simply copying a file
 <details>
 <summary>click for more info</summary>
 <p>
+
 raw numbers from running `./bench.sh` on a 2019 macbook pro with eight
 intel 2.3 ghz i9 cpus and 16 gb of ram are shown below. the dataset
 used is the first 100mb and first 1gb of english wikipedia. the same
 dataset is used for the [hutter prize](http://prize.hutter1.net/)
 for text compression
+
 ```
 1 thread uwu enwik8
 time taken: 178 ms
@@ -145,13 +163,16 @@ real	0m0.387s
 user	0m0.001s
 sys	0m0.341s
 ```
+
+*//TODO: compare with other tools*
+
 </p>
 </details>
 
 ### why isn't this readme uwu'd?
 so its readable
 
-if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.md) version
+if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.txt) version
 
 ### ok but why aren't there any of the settings i can change?!1?!!1
 free will is an illusion
@@ -192,6 +213,7 @@ open an issue, be nice
 ### references
 * https://honk.moe/tools/owo.html
 * https://github.com/IamRifki/uwuizer
+* https://github.com/deadshot465/owoify_rs
 * https://cutekaomoji.com/characters/uwu/
 * https://cutekaomoji.com/characters/owo/
 * https://cutekaomoji.com/characters/flower-girl/

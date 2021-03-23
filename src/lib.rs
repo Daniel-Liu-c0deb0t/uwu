@@ -304,11 +304,11 @@ mod tests {
         let mut temp_bytes1 = [0u8; 1024];
         let mut temp_bytes2 = [0u8; 1024];
 
-        let mut bytes = "Hello world! blah blah... hi, i love you.".as_bytes().to_owned();
+        let mut bytes = "Hey... I think I really love you. Do you want a headpat?".as_bytes().to_owned();
         let len = bytes.len();
         bytes.resize(round_up(len, 16), 0);
         let res_bytes = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
-        assert_eq!(res, "hewwo wowwd! (⑅˘꒳˘) bwah b-bwah... hi, (U ᵕ U❁) i wuv y-you.");
+        assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
     }
 }

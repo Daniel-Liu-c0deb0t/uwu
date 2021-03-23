@@ -1,8 +1,14 @@
 [package]
-name = "uwu"
+name = "uwuify"
 version = "0.1.0"
 authors = ["c0deb0t <daniel.liu02@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "fastest text uwuifier in the west"
+repository = "https://github.com/Daniel-Liu-c0deb0t/uwu"
+readme = "README.md"
+keywords = ["SIMD", "uwu", "owo", "cli"]
+categories = ["algorithms", "hardware-support", "text-processing", "command-line-utilities"]
 
 [dependencies]
 clap = "^2.33"
@@ -12,9 +18,9 @@ parking_lot = "^0.11"
 lto = true
 
 [lib]
-name = "uwu_ifier"
+name = "uwuifier"
 path = "src/lib.rs"
 
 [[bin]]
-name = "uwu"
+name = "uwuify"
 path = "src/main.rs"
