@@ -14,36 +14,132 @@ why not?
 ### how?
 tldr: 128-bit simd vectorization plus some big brain algos
 
-after hours of research, i've finally understood the essence of uwu'd text
+<details>
+    <summary>click for more info</summary>
 
-there are a few transformations:
-1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
-2. replace `l` and `r` with `w`
-3. stutter sometimes (`hi` -> `h-hi`)
-4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
-5. replace some words (`small` -> `smol`, etc.)
+    after hours of research, i've finally understood the essence of uwu'd text
 
-these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
-for string searching, i'm using a custom simd implementation of the
-[bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algorithm for matching against multiple strings.
-for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wiki/Xorshift). for most
-character-level detection within simd registers, its all masking and shifting to simulate basic state
-machines in parallel
+    there are a few transformations:
+    1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
+    2. replace `l` and `r` with `w`
+    3. stutter sometimes (`hi` -> `h-hi`)
+    4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
+    5. replace some words (`small` -> `smol`, etc.)
 
-multithreading is supported, so you can exploit all of your cpu cores for the noble goal
-of uwu-ing massive amounts of text
+    these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
+    for string searching, i'm using a custom simd implementation of the
+    [bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algorithm for matching against multiple strings.
+    for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wiki/Xorshift). for most
+    character-level detection within simd registers, its all masking and shifting to simulate basic state
+    machines in parallel
 
-utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
+    multithreading is supported, so you can exploit all of your cpu cores for the noble goal
+    of uwu-ing massive amounts of text
 
-unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
-if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
-*they won't escape so easily next time*
+    utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
+
+    unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
+    if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
+    *they won't escape so easily next time*
+</details>
 
 ### ok i want uwu'd text, how do i run this myself?
-1. install rust: run `curl https://sh.rustup.rs -sSf | sh` unix,
+1. install rust: run `curl https://sh.rustup.rs -sSf | sh` on unix,
 or go [here](https://www.rust-lang.org/tools/install) for more options
-2. clone this repo
-3. idk
+2. run `cargo install uwu`
+3. run `uwu` which will read from stdin and output to stdout. make sure u
+press ctrl + d after you type stuff in stdin
+
+#### build from this repo
+<details>
+    <summary>click for more info</summary>
+
+    1. install rust
+    2. run `git clone https://github.com/Daniel-Liu-c0deb0t/uwu.git && cd uwu`
+    3. run `cargo run --release`
+
+    ##### testing
+    1. run `cargo test`
+
+    ##### benchmarking
+    1. run `mkdir test && cd test`
+
+    *warning: large files of 100mb and 1gb, respectively*
+
+    2. run `curl -OL http://cs.fit.edu/~mmahoney/compression/enwik8.zip && unzip enwik8.zip`
+    3. run `curl -OL http://cs.fit.edu/~mmahoney/compression/enwik9.zip && unzip enwik9.zip`
+    4. run `cd .. && ./bench.sh`
+</details>
+
+### i don't believe that this is fast. i need proof!!1!
+tldr: can be almost as fast as simply copying a file
+
+<details>
+    <summary>click for more info</summary>
+
+    raw numbers from running `./bench.sh` on a 2019 macbook pro with eight intel 2.3 ghz i9 cpus and 16 gb of ram:
+```
+1 thread uwu enwik8
+time taken: 178 ms
+input size: 100000000 bytes
+output size: 115095591 bytes
+throughput: 0.55992 gb/s
+
+2 thread uwu enwik8
+time taken: 105 ms
+input size: 100000000 bytes
+output size: 115095591 bytes
+throughput: 0.94701 gb/s
+
+4 thread uwu enwik8
+time taken: 60 ms
+input size: 100000000 bytes
+output size: 115095591 bytes
+throughput: 1.64883 gb/s
+
+8 thread uwu enwik8
+time taken: 47 ms
+input size: 100000000 bytes
+output size: 115095591 bytes
+throughput: 2.12590 gb/s
+
+copy enwik8
+
+real	0m0.035s
+user	0m0.001s
+sys	0m0.031s
+
+1 thread uwu enwik9
+time taken: 2087 ms
+input size: 1000000000 bytes
+output size: 1149772651 bytes
+throughput: 0.47905 gb/s
+
+2 thread uwu enwik9
+time taken: 992 ms
+input size: 1000000000 bytes
+output size: 1149772651 bytes
+throughput: 1.00788 gb/s
+
+4 thread uwu enwik9
+time taken: 695 ms
+input size: 1000000000 bytes
+output size: 1149772651 bytes
+throughput: 1.43854 gb/s
+
+8 thread uwu enwik9
+time taken: 436 ms
+input size: 1000000000 bytes
+output size: 1149772651 bytes
+throughput: 2.29214 gb/s
+
+copy enwik9
+
+real	0m0.387s
+user	0m0.001s
+sys	0m0.341s
+```
+</details>
 
 ### why isn't this readme uwu'd?
 so its readable
@@ -56,9 +152,9 @@ free will is an illusion
 ### wtf this is so unprofessional how are u gonna get hired at faang now?!
 don't worry, i've got u covered
 
-**Title: uwu is all you need**
+#### Title: uwu is all you need
 
-**Abstract:**
+#### Abstract
 
 Recent advances in computing have made strides in parallelization, whether
 at a fine-grained level with SIMD instructions, or at a high level with multiple
