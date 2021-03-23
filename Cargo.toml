@@ -5,6 +5,7 @@ authors = ["c0deb0t <daniel.liu02@gmail.com>"]
 edition = "2018"
 license = "MIT"
 description = "fastest text uwuifier in the west"
+homepage = "https://github.com/Daniel-Liu-c0deb0t/uwu"
 repository = "https://github.com/Daniel-Liu-c0deb0t/uwu"
 readme = "README.md"
 keywords = ["SIMD", "uwu", "owo", "cli"]
