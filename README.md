@@ -15,32 +15,33 @@ why not?
 tldr: 128-bit simd vectorization plus some big brain algos
 
 <details>
-    <summary>click for more info</summary>
+<summary>click for more info</summary>
+<p>
+after hours of research, i've finally understood the essence of uwu'd text
 
-    after hours of research, i've finally understood the essence of uwu'd text
+there are a few transformations:
+1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
+2. replace `l` and `r` with `w`
+3. stutter sometimes (`hi` -> `h-hi`)
+4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
+5. replace some words (`small` -> `smol`, etc.)
 
-    there are a few transformations:
-    1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
-    2. replace `l` and `r` with `w`
-    3. stutter sometimes (`hi` -> `h-hi`)
-    4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
-    5. replace some words (`small` -> `smol`, etc.)
+these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
+for string searching, i'm using a custom simd implementation of the
+[bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algorithm for matching against multiple strings.
+for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wiki/Xorshift). for most
+character-level detection within simd registers, its all masking and shifting to simulate basic state
+machines in parallel
 
-    these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
-    for string searching, i'm using a custom simd implementation of the
-    [bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algorithm for matching against multiple strings.
-    for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wiki/Xorshift). for most
-    character-level detection within simd registers, its all masking and shifting to simulate basic state
-    machines in parallel
+multithreading is supported, so you can exploit all of your cpu cores for the noble goal
+of uwu-ing massive amounts of text
 
-    multithreading is supported, so you can exploit all of your cpu cores for the noble goal
-    of uwu-ing massive amounts of text
+utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
 
-    utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
-
-    unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
-    if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
-    *they won't escape so easily next time*
+unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
+if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
+*they won't escape so easily next time*
+</p>
 </details>
 
 ### ok i want uwu'd text, how do i run this myself?
@@ -52,32 +53,37 @@ press ctrl + d after you type stuff in stdin
 
 #### build from this repo
 <details>
-    <summary>click for more info</summary>
+<summary>click for more info</summary>
+<p>
+1. install rust
+2. run `git clone https://github.com/Daniel-Liu-c0deb0t/uwu.git && cd uwu`
+3. run `cargo run --release`
 
-    1. install rust
-    2. run `git clone https://github.com/Daniel-Liu-c0deb0t/uwu.git && cd uwu`
-    3. run `cargo run --release`
+##### testing
+1. run `cargo test`
 
-    ##### testing
-    1. run `cargo test`
+##### benchmarking
+1. run `mkdir test && cd test`
 
-    ##### benchmarking
-    1. run `mkdir test && cd test`
+*warning: large files of 100mb and 1gb, respectively*
 
-    *warning: large files of 100mb and 1gb, respectively*
-
-    2. run `curl -OL http://cs.fit.edu/~mmahoney/compression/enwik8.zip && unzip enwik8.zip`
-    3. run `curl -OL http://cs.fit.edu/~mmahoney/compression/enwik9.zip && unzip enwik9.zip`
-    4. run `cd .. && ./bench.sh`
+2. run `curl -OL http://mattmahoney.net/dc/enwik8.zip && unzip enwik8.zip`
+3. run `curl -OL http://mattmahoney.net/dc/enwik9.zip && unzip enwik9.zip`
+4. run `cd .. && ./bench.sh`
+</p>
 </details>
 
 ### i don't believe that this is fast. i need proof!!1!
 tldr: can be almost as fast as simply copying a file
 
 <details>
-    <summary>click for more info</summary>
-
-    raw numbers from running `./bench.sh` on a 2019 macbook pro with eight intel 2.3 ghz i9 cpus and 16 gb of ram:
+<summary>click for more info</summary>
+<p>
+raw numbers from running `./bench.sh` on a 2019 macbook pro with eight
+intel 2.3 ghz i9 cpus and 16 gb of ram are shown below. the dataset
+used is the first 100mb and first 1gb of english wikipedia. the same
+dataset is used for the [hutter prize](http://prize.hutter1.net/)
+for text compression
 ```
 1 thread uwu enwik8
 time taken: 178 ms
@@ -139,6 +145,7 @@ real	0m0.387s
 user	0m0.001s
 sys	0m0.341s
 ```
+</p>
 </details>
 
 ### why isn't this readme uwu'd?
@@ -173,6 +180,7 @@ giving authors the ability to convey potentially wholesome or cute meme messages
 with minimal time and effort.
 
 *// TODO: write paper*
+
 *// TODO: write more about machine learning so i get funding*
 
 ### ok i need to use this for something and i need the license info
