@@ -1,3 +1,5 @@
+#![cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+
 #[cfg(target_arch = "x86")]
 use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
@@ -14,21 +16,61 @@ use bitap::Bitap8x16;
 #[repr(align(16))]
 struct A([u8; 16]);
 
+#[inline(always)]
 fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
 
-pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
-    assert!(round_up(len, 16) <= bytes.len());
-    assert!(temp_bytes1.len() >= bytes.len() * 8);
-    assert!(temp_bytes2.len() >= bytes.len() * 8);
+#[inline(always)]
+fn pad_zeros(bytes: &mut [u8], len: usize) {
+    for i in len..round_up(len, 16) {
+        unsafe { *bytes.get_unchecked_mut(i) = 0u8; }
+    }
+}
 
+pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
+    if !is_x86_feature_detected!("sse4.1") {
+        panic!("sse4.1 feature not detected!");
+    }
+    assert!(round_up(len, 16) <= bytes.len());
+    assert!(temp_bytes1.len() >= bytes.len() * 16);
+    assert!(temp_bytes2.len() >= bytes.len() * 16);
+
+    // only the highest quality seed will do
     let mut rng = XorShift32::new(b"uwu!");
 
     unsafe {
-        len = nya_ify_sse(bytes, len, temp_bytes1);
-        len = replace_and_stutter_sse(&mut rng, temp_bytes1, len, temp_bytes2);
-        len = emoji_sse(&mut rng, temp_bytes2, len, temp_bytes1);
-        &temp_bytes1[..len]
+        // bitap_sse will not read past len
+        len = bitap_sse(bytes, len, temp_bytes1);
+        pad_zeros(temp_bytes1, len);
+        len = nya_ify_sse(temp_bytes1, len, temp_bytes2);
+        pad_zeros(temp_bytes2, len);
+        len = replace_and_stutter_sse(&mut rng, temp_bytes2, len, temp_bytes1);
+        pad_zeros(temp_bytes1, len);
+        len = emoji_sse(&mut rng, temp_bytes1, len, temp_bytes2);
+        &temp_bytes2[..len]
     }
+}
+
+#[target_feature(enable = "sse4.1")]
+unsafe fn bitap_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
+    let mut out_ptr = out_bytes.as_mut_ptr();
+    let mut bitap = Bitap8x16::new();
+    let iter_len = len;
+
+    for i in 0..iter_len {
+        let c = *in_bytes.get_unchecked(i);
+        ptr::write(out_ptr, c);
+        out_ptr = out_ptr.add(1);
+
+        if let Some(m) = bitap.next(c) {
+            let replace = _mm_load_si128(m.replace_ptr);
+            _mm_storeu_si128(out_ptr.sub(m.match_len) as *mut __m128i, replace);
+            out_ptr = out_ptr.add(m.replace_len).sub(m.match_len);
+            len = len + m.replace_len - m.match_len;
+            bitap.reset();
+        }
+    }
+
+    len
 }
 
 const fn str_to_bytes(s: &str) -> A {
@@ -44,16 +86,24 @@ const fn str_to_bytes(s: &str) -> A {
     res
 }
 
-const LUT_SIZE: usize = 8;
+const LUT_SIZE: usize = 16;
 static LUT: [A; LUT_SIZE] = [
     str_to_bytes(" rawr x3"),
     str_to_bytes(" OwO"),
     str_to_bytes(" UwU"),
     str_to_bytes(" o.O"),
     str_to_bytes(" -.-"),
-    str_to_bytes(" 𝓤𝔀𝓤"),
+    str_to_bytes(" >w<"),
     str_to_bytes(" (⑅˘꒳˘)"),
-    str_to_bytes(" (ꈍᴗꈍ)")
+    str_to_bytes(" (ꈍᴗꈍ)"),
+    str_to_bytes(" (˘ω˘)"),
+    str_to_bytes(" (U ᵕ U❁)"),
+    str_to_bytes(" σωσ"),
+    str_to_bytes(" òωó"),
+    str_to_bytes(" (///ˬ///✿)"),
+    str_to_bytes(" (U ﹏ U)"),
+    str_to_bytes(" ( ͡o ω ͡o )"),
+    str_to_bytes(" ʘwʘ")
 ];
 
 const fn bytes_len(b: &[u8]) -> usize {
@@ -80,6 +130,7 @@ const fn get_len(a: &[A]) -> [usize; LUT_SIZE] {
 
 static LUT_LEN: [usize; LUT_SIZE] = get_len(&LUT);
 
+#[target_feature(enable = "sse4.1")]
 unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
     let in_ptr = in_bytes.as_ptr();
     let mut out_ptr = out_bytes.as_mut_ptr();
@@ -102,8 +153,10 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
             _mm_cmpeq_epi8(vec, splat_comma),
             _mm_or_si128(_mm_cmpeq_epi8(vec, splat_period), _mm_cmpeq_epi8(vec, splat_exclamation))
         );
+        // multiple punctuation in a row means no emoji
         let mut multiple_mask = _mm_and_si128(punctuation_mask, _mm_slli_si128(punctuation_mask, 1));
         multiple_mask = _mm_or_si128(multiple_mask, _mm_srli_si128(multiple_mask, 1));
+        // punctuation must be followed by a space or else no emoji
         let space_mask = _mm_or_si128(
             _mm_cmpeq_epi8(vec, splat_space),
             _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
@@ -116,6 +169,7 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
         _mm_storeu_si128(out_ptr as *mut __m128i, vec);
 
+        // be lazy and only allow one emoji per vector
         if insert_mask != 0 {
             let insert_idx = insert_mask.trailing_zeros() as usize + 1;
             let rand_idx = rng.gen_bits(lut_bits) as usize;
@@ -123,7 +177,8 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
             let insert_len = *LUT_LEN.get_unchecked(rand_idx);
             let insert_vec = _mm_load_si128(insert.0.as_ptr() as *const __m128i);
             _mm_storeu_si128(out_ptr.add(insert_idx) as *mut __m128i, insert_vec);
-            // shuffle to shift by amount only known at runtime
+
+            // shuffle to shift right by amount only known at runtime
             let rest_vec = _mm_shuffle_epi8(vec, _mm_add_epi8(indexes, _mm_set1_epi8(insert_idx as i8)));
             _mm_storeu_si128(out_ptr.add(insert_idx + insert_len) as *mut __m128i, rest_vec);
             out_ptr = out_ptr.add(insert_len);
@@ -136,6 +191,7 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
     len
 }
 
+#[target_feature(enable = "sse4.1")]
 unsafe fn nya_ify_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
     let in_ptr = in_bytes.as_ptr();
     let mut out_ptr = out_bytes.as_mut_ptr();
@@ -156,11 +212,13 @@ unsafe fn nya_ify_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> 
             _mm_cmpeq_epi8(vec, splat_space),
             _mm_or_si128(_mm_cmpeq_epi8(vec, splat_tab), _mm_cmpeq_epi8(vec, splat_newline))
         );
+        // only nya-ify if its space followed by 'n'
         let space_and_n_mask = _mm_and_si128(_mm_slli_si128(space_mask, 1), n_mask);
         let mut nya_mask = _mm_movemask_epi8(space_and_n_mask) as u32;
 
         _mm_storeu_si128(out_ptr as *mut __m128i, vec);
 
+        // try to nya-ify as many as possible in the current vector
         while nya_mask != 0 {
             let nya_idx = nya_mask.trailing_zeros() as usize;
             ptr::write(out_ptr.add(nya_idx + 1), b'y');
@@ -178,6 +236,7 @@ unsafe fn nya_ify_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> 
     len
 }
 
+#[target_feature(enable = "sse4.1")]
 unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> usize {
     let in_ptr = in_bytes.as_ptr();
     let mut out_ptr = out_bytes.as_mut_ptr();
@@ -202,6 +261,7 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
         let alpha_mask = _mm_and_si128(_mm_cmpgt_epi8(vec_but_lower, splat_backtick), _mm_cmpgt_epi8(splat_open_brace, vec_but_lower));
         let replace_mask = _mm_or_si128(_mm_cmpeq_epi8(vec_but_lower, splat_l), _mm_cmpeq_epi8(vec_but_lower, splat_r));
         let replaced = _mm_blendv_epi8(vec_but_lower, splat_w, replace_mask);
+        // make sure only alphabetical characters are lowercased and replaced
         let mut res = _mm_blendv_epi8(vec, replaced, alpha_mask);
 
         // sometimes, add a stutter if there is a space, tab, or newline followed by any letter
@@ -244,11 +304,11 @@ mod tests {
         let mut temp_bytes1 = [0u8; 1024];
         let mut temp_bytes2 = [0u8; 1024];
 
-        let mut bytes = "Hello world! blah blah... hi, this is a sentence.".as_bytes().to_owned();
+        let mut bytes = "Hello world! blah blah... hi, i love you.".as_bytes().to_owned();
         let len = bytes.len();
         bytes.resize(round_up(len, 16), 0);
         let res_bytes = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
-        assert_eq!(res, "hewwo w-wowwd! bwah bwah... hi, (⑅˘꒳˘) this is a sentence.");
+        assert_eq!(res, "hewwo wowwd! (⑅˘꒳˘) bwah b-bwah... hi, (U ᵕ U❁) i wuv y-you.");
     }
 }

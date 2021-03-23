@@ -82,37 +82,46 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 
         threads.push(thread::spawn(move || {
             let mut bytes = vec![0u8; LEN];
-            let mut temp_bytes1 = vec![0u8; LEN * 8];
-            let mut temp_bytes2 = vec![0u8; LEN * 8];
+            let mut temp_bytes1 = vec![0u8; LEN * 16];
+            let mut temp_bytes2 = vec![0u8; LEN * 16];
 
             loop {
                 let (len, read_idx) = {
                     let mut curr_reader_idx = reader_idx.lock();
+                    // keep track of the index of the current chunk that is read in
                     curr_reader_idx.1 += 1;
                     let len = read_as_much_as_possible(&mut curr_reader_idx.0, &mut bytes);
                     (len, curr_reader_idx.1 - 1)
                 };
 
                 input_size.fetch_add(len, Ordering::Relaxed);
+                // core uwu-ifier code
                 let res = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
                 output_size.fetch_add(res.len(), Ordering::Relaxed);
 
                 idx_thread.lock().insert(read_idx, thread::current());
+                // wait until this thread can write out in order
                 while write_idx.load(Ordering::Acquire) != read_idx {
                     // literally won't have anything to do until another thread updates write_idx
                     thread::park();
                 }
                 // at this point, only one thread is using writer at one time
                 writer.lock().write_all(res).unwrap();
+                // after the next line, another thread would be able to start writing any time
                 write_idx.fetch_add(1, Ordering::Release);
                 {
                     let mut map = idx_thread.lock();
+                    // clean up
                     map.remove(&read_idx);
+
+                    // try to unpark the next thread
+                    // its ok if the next thread is not in the map or not parked
                     if let Some(next_thread) = map.get(&(read_idx + 1)) {
                         next_thread.unpark();
                     }
                 }
 
+                // the only chunk that is not full length is the last one
                 if len < LEN {
                     break;
                 }
@@ -128,6 +137,7 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 }
 
 fn read_as_much_as_possible(reader: &mut Box<dyn Read + Send>, mut bytes: &mut [u8]) -> usize {
+    // guarantees that the only chunk that does not fill bytes is the last chunk
     let mut res = 0;
     while bytes.len() > 0 {
         match reader.read(&mut bytes) {
