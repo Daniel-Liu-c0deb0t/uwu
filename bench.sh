@@ -7,22 +7,22 @@ files="enwik8 enwik9"
 for f in $files; do
     echo "1 thread uwu $f"
     cargo clean
-    cargo run --quiet --release -- test/$f test/${f}_uwu -t 1
+    cargo run --quiet --release -- test/$f test/${f}_uwu -t 1 -v
     echo ""
 
     echo "2 thread uwu $f"
     cargo clean
-    cargo run --quiet --release -- test/$f test/${f}_uwu -t 2
+    cargo run --quiet --release -- test/$f test/${f}_uwu -t 2 -v
     echo ""
 
     echo "4 thread uwu $f"
     cargo clean
-    cargo run --quiet --release -- test/$f test/${f}_uwu -t 4
+    cargo run --quiet --release -- test/$f test/${f}_uwu -t 4 -v
     echo ""
 
     echo "8 thread uwu $f"
     cargo clean
-    cargo run --quiet --release -- test/$f test/${f}_uwu -t 8
+    cargo run --quiet --release -- test/$f test/${f}_uwu -t 8 -v
     echo ""
 
     echo "copy $f"

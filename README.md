@@ -68,7 +68,8 @@ if you are having trouble running `uwuify`, make sure you have `~/.cargo/bin`
 in your `$PATH`
 
 it is possible to read and write from files by specifying the input file and
-output file, in that order. u can use `--help` for more info
+output file, in that order. u can use `--help` for more info. pass in
+`-v` for timings
 
 #### build from this repo
 <details>

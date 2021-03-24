@@ -41,7 +41,7 @@ fn main() {
              .takes_value(true)
              .default_value("1"))
         .arg(Arg::with_name("verbose")
-             .help("show verbose output")
+             .help("show verbose output, including run time and throughput")
              .short("v")
              .long("verbose"))
         .get_matches();
