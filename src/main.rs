@@ -40,6 +40,10 @@ fn main() {
              .value_name("THREADS")
              .takes_value(true)
              .default_value("1"))
+        .arg(Arg::with_name("verbose")
+             .help("show verbose output")
+             .short("v")
+             .long("verbose"))
         .get_matches();
 
     if let Some(err) = main_inner(matches).err() {
@@ -71,10 +75,13 @@ fn main_inner(matches: ArgMatches) -> Result<()> {
     let start_time = Instant::now();
     let (input_size, output_size) = parallel_uwu(reader, writer, thread_count);
     let duration = start_time.elapsed();
-    eprintln!("time taken: {} ms", duration.as_millis());
-    eprintln!("input size: {} bytes", input_size);
-    eprintln!("output size: {} bytes", output_size);
-    eprintln!("throughput: {:.5} gb/s", (input_size as f64) / (duration.as_nanos() as f64));
+
+    if matches.is_present("verbose") {
+        eprintln!("time taken: {} ms", duration.as_millis());
+        eprintln!("input size: {} bytes", input_size);
+        eprintln!("output size: {} bytes", output_size);
+        eprintln!("throughput: {:.5} gb/s", (input_size as f64) / (duration.as_nanos() as f64));
+    }
 
     Ok(())
 }
