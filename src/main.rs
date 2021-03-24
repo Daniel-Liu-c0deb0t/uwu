@@ -1,6 +1,6 @@
 use uwuifier::uwu_ify_sse;
 
-use clap::{App, Arg};
+use clap::{App, Arg, ArgMatches};
 
 use parking_lot::Mutex;
 
@@ -13,9 +13,14 @@ use std::thread;
 use std::collections::HashMap;
 use std::time::Instant;
 
+use owo_colors::OwoColorize;
+
 // should be small enough so stuff fits in L1/L2 cache
 // but big enough so each thread has enough work to do
 const LEN: usize = 1 << 16;
+
+mod error;
+use error::{Error, Result};
 
 fn main() {
     let matches = App::new("uwu")
@@ -37,20 +42,30 @@ fn main() {
              .default_value("1"))
         .get_matches();
 
+    if let Some(err) = main_inner(matches).err() {
+        eprintln!(
+            "{} {}",
+            "Error:".bright_red().bold(),
+            err.bright_red().bold()
+        );
+    }
+}
+
+fn main_inner(matches: ArgMatches) -> Result<()> {
     let in_path = matches.value_of("INPUT").unwrap();
     let out_path = matches.value_of("OUTPUT").unwrap();
-    let thread_count = matches.value_of("threads").unwrap().parse::<usize>().unwrap();
+    let thread_count = matches.value_of("threads").unwrap().parse::<usize>()?;
 
     let reader: Box<dyn Read + Send> = if in_path == "-" {
         Box::new(io::stdin())
     } else {
-        Box::new(File::open(in_path).unwrap())
+        Box::new(File::open(in_path).map_err(Error::FileOpen)?)
     };
 
     let writer: Box<dyn Write + Send> = if out_path == "-" {
         Box::new(io::stdout())
     } else {
-        Box::new(File::create(out_path).unwrap())
+        Box::new(File::create(out_path).map_err(Error::FileCreate)?)
     };
 
     let start_time = Instant::now();
@@ -60,6 +75,8 @@ fn main() {
     eprintln!("input size: {} bytes", input_size);
     eprintln!("output size: {} bytes", output_size);
     eprintln!("throughput: {:.5} gb/s", (input_size as f64) / (duration.as_nanos() as f64));
+
+    Ok(())
 }
 
 fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thread_count: usize) -> (usize, usize) {
