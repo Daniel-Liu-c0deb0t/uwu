@@ -10,6 +10,8 @@ into
 hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?
 ```
 
+there's an [uwu'd](README_UWU.txt) version of this readme
+
 ## faq
 ### what?
 u want large amounts of text uwu'd in a smol amount of time
