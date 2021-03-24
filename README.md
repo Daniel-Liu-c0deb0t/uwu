@@ -60,10 +60,13 @@ if they were lucky enough to cross the boundary of a simd vector or a thread's b
 or go [here](https://www.rust-lang.org/tools/install) for more options
 2. run `cargo install uwuify`
 3. run `uwuify` which will read from stdin and output to stdout. make sure u
-press ctrl + d after u type stuff in stdin
+press ctrl + d (unix) or ctrl + z and enter (windows) after u type stuff in stdin to send an EOF
 
 if you are having trouble running `uwuify`, make sure you have `~/.cargo/bin`
 in your `$PATH`
+
+it is possible to read and write from files by specifying the input file and
+output file, in that order. u can use `--help` for more info
 
 #### build from this repo
 <details>
