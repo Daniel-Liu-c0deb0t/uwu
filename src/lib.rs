@@ -16,29 +16,58 @@ use bitap::Bitap8x16;
 #[repr(align(16))]
 struct A([u8; 16]);
 
+/// round up `n` to the next multiple of 16. useful for allocating buffers
+///
+/// # example:
+/// ```
+/// use uwuifier::round_up16;
+/// assert_eq!(round_up16(17), 32);
+/// ```
 #[inline(always)]
-fn round_up(a: usize, b: usize) -> usize { (a + b - 1) / b * b }
+pub fn round_up16(n: usize) -> usize { (n + 15) / 16 * 16 }
 
 #[inline(always)]
 fn pad_zeros(bytes: &mut [u8], len: usize) {
-    for i in len..round_up(len, 16) {
+    for i in len..round_up16(len) {
         unsafe { *bytes.get_unchecked_mut(i) = 0u8; }
     }
 }
 
-pub fn uwu_ify_sse<'a>(bytes: &[u8], mut len: usize, temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
+/// uwuify some bytes
+///
+/// requires the sse4.1 x86 feature
+///
+/// `temp_bytes1` and `temp_bytes2` must be buffers of size `round_up16(bytes.len()) * 16`,
+/// because this is the worst-case size of the output. yes, it is annoying to allocate by
+/// hand, but simd :)
+///
+/// the returned slice is the uwu'd result. when working with utf-8 strings, just pass in
+/// the string as raw bytes and convert the output slice back to a string afterwards
+///
+/// # example:
+/// ```
+/// use uwuifier::{uwuify_sse, round_up16};
+/// let s = "hello world";
+/// let b = s.as_bytes();
+/// let mut temp1 = vec![0u8; round_up16(b.len()) * 16];
+/// let mut temp2 = vec![0u8; round_up16(b.len()) * 16];
+/// let res = uwuify_sse(b, &mut temp1, &mut temp2);
+/// assert_eq!(std::str::from_utf8(res).unwrap(), "hewwo wowwd");
+/// ```
+pub fn uwuify_sse<'a>(bytes: &[u8], temp_bytes1: &'a mut [u8], temp_bytes2: &'a mut [u8]) -> &'a [u8] {
     if !is_x86_feature_detected!("sse4.1") {
         panic!("sse4.1 feature not detected!");
     }
-    assert!(round_up(len, 16) <= bytes.len());
-    assert!(temp_bytes1.len() >= bytes.len() * 16);
-    assert!(temp_bytes2.len() >= bytes.len() * 16);
+    assert!(temp_bytes1.len() >= round_up16(bytes.len()) * 16);
+    assert!(temp_bytes2.len() >= round_up16(bytes.len()) * 16);
 
     // only the highest quality seed will do
     let mut rng = XorShift32::new(b"uwu!");
 
+    let mut len = bytes.len();
+
     unsafe {
-        // bitap_sse will not read past len
+        // bitap_sse will not read past len, unlike the other passes
         len = bitap_sse(bytes, len, temp_bytes1);
         pad_zeros(temp_bytes1, len);
         len = nya_ify_sse(temp_bytes1, len, temp_bytes2);
@@ -145,7 +174,7 @@ unsafe fn emoji_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len: usize, out_b
 
     let lut_bits = LUT.len().trailing_zeros() as u32;
 
-    let iter_len = round_up(len, 16);
+    let iter_len = round_up16(len);
 
     for i in (0..iter_len).step_by(16) {
         let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
@@ -203,7 +232,7 @@ unsafe fn nya_ify_sse(in_bytes: &[u8], mut len: usize, out_bytes: &mut [u8]) -> 
     let splat_newline = _mm_set1_epi8(b'\n' as i8);
     let indexes = _mm_set_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
-    let iter_len = round_up(len, 16);
+    let iter_len = round_up16(len);
 
     for i in (0..iter_len).step_by(16) {
         let vec = _mm_loadu_si128(in_ptr.add(i) as *const __m128i);
@@ -252,7 +281,7 @@ unsafe fn replace_and_stutter_sse(rng: &mut XorShift32, in_bytes: &[u8], mut len
     let splat_newline = _mm_set1_epi8(b'\n' as i8);
     let indexes = _mm_set_epi8(15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0);
 
-    let iter_len = round_up(len, 16);
+    let iter_len = round_up16(len);
 
     for i in (0..iter_len).step_by(16) {
         // replace 'l' and 'r' with 'w'
@@ -304,10 +333,8 @@ mod tests {
         let mut temp_bytes1 = [0u8; 1024];
         let mut temp_bytes2 = [0u8; 1024];
 
-        let mut bytes = "Hey... I think I really love you. Do you want a headpat?".as_bytes().to_owned();
-        let len = bytes.len();
-        bytes.resize(round_up(len, 16), 0);
-        let res_bytes = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
+        let s = "Hey... I think I really love you. Do you want a headpat?";
+        let res_bytes = uwuify_sse(s.as_bytes(), &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
         assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
     }

@@ -67,6 +67,8 @@ static PATTERNS: [&str; 8] = [
 static MASKS: [A; 256] = get_masks(&PATTERNS);
 static START_MASK: A = get_start_mask(&PATTERNS);
 
+// important note: replacement cannot be more than 2 times longer than the corresponding pattern!
+// this is to prevent increasing the size of the output too much in certain cases
 static REPLACE: [A; 8] = [
     str_to_bytes("smol"),
     str_to_bytes("kawaii~"),

@@ -1,6 +1,7 @@
 set -e
 
 # note: cargo clean to make sure everything rebuilds every time
+# this might help prevent the OS from caching the input file???
 
 files="enwik8 enwik9"
 

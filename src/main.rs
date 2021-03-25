@@ -1,4 +1,4 @@
-use uwuifier::uwu_ify_sse;
+use uwuifier::uwuify_sse;
 
 use clap::{App, Arg, ArgMatches};
 
@@ -24,7 +24,7 @@ use error::{Error, Result};
 
 fn main() {
     let matches = App::new("uwu")
-        .about("fastest text uwu-ifier in the west")
+        .about("fastest text uwuifier in the west")
         .arg(Arg::with_name("INPUT")
              .help("input text file")
              .default_value("-")
@@ -106,6 +106,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 
         threads.push(thread::spawn(move || {
             let mut bytes = vec![0u8; LEN];
+            // since LEN is a multiple of 16, no need to round it up when calculating the temp
+            // buffer lengths
             let mut temp_bytes1 = vec![0u8; LEN * 16];
             let mut temp_bytes2 = vec![0u8; LEN * 16];
 
@@ -119,8 +121,8 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
                 };
 
                 input_size.fetch_add(len, Ordering::Relaxed);
-                // core uwu-ifier code
-                let res = uwu_ify_sse(&bytes, len, &mut temp_bytes1, &mut temp_bytes2);
+                // core uwuifier code
+                let res = uwuify_sse(&bytes[..len], &mut temp_bytes1, &mut temp_bytes2);
                 output_size.fetch_add(res.len(), Ordering::Relaxed);
 
                 idx_thread.lock().insert(read_idx, thread::current());

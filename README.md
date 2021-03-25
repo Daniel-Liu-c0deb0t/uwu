@@ -58,6 +58,7 @@ if they were lucky enough to cross the boundary of a simd vector or a thread's b
 </details>
 
 ### ok i want uwu'd text, how do i run this myself?
+#### install command-line tool
 1. install rust: run `curl https://sh.rustup.rs -sSf | sh` on unix,
 or go [here](https://www.rust-lang.org/tools/install) for more options
 2. run `cargo install uwuify`
@@ -70,6 +71,24 @@ in your `$PATH`
 it is possible to read and write from files by specifying the input file and
 output file, in that order. u can use `--help` for more info. pass in
 `-v` for timings
+
+this is on crates.io [here](https://crates.io/crates/uwuify)
+
+#### include as library
+1. put `uwuify = "^0.2"` under `[dependencies]` in your `Cargo.toml` file
+2. the library is called `uwuifier` (slightly different from the name of the binary!)
+use it like so:
+```
+use uwuifier::{uwuify_sse, round_up16};
+let s = "hello world";
+let b = s.as_bytes();
+let mut temp1 = vec![0u8; round_up16(b.len()) * 16];
+let mut temp2 = vec![0u8; round_up16(b.len()) * 16];
+let res = uwuify_sse(b, &mut temp1, &mut temp2);
+assert_eq!(std::str::from_utf8(res).unwrap(), "hewwo wowwd");
+```
+
+documentation is [here](https://docs.rs/uwuify/latest/uwuifier/)
 
 #### build from this repo
 <details>
