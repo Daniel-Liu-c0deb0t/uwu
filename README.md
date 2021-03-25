@@ -180,7 +180,7 @@ so its readable
 
 if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.txt) version
 
-### ok but why aren't there any of the settings i can change?!1?!!1
+### ok but why aren't there any settings i can change?!1?!!1
 free will is an illusion
 
 ### wtf this is so unprofessional how are u gonna get hired at faang now?!

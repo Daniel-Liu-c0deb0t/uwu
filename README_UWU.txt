@@ -180,47 +180,47 @@ so i-its weadabwe
 
 if u happen to find u-uwu'd text mowe w-weadabwe, o.O thewe's awways an [uwu'd](weadme_uwu.txt) v-vewsion
 
-### o-ok but why awen't t-thewe any o-of the settings i can change?!1?!!1
-f-fwee wiww is a-an iwwusion
+### o-ok but why awen't t-thewe any s-settings i can change?!1?!!1
+fwee w-wiww is an iwwusion
 
-### wtf this is so unpwofessionaw how awe u gonna get hiwed at faang n-nyow?! (U ﹏ U)
-don't w-wowwy, σωσ i've got u covewed
+### w-wtf this is so unpwofessionaw how awe u gonna get hiwed at faang nyow?! (U ﹏ U)
+d-don't wowwy, σωσ i-i've got u covewed
 
 #### titwe: uwu is aww you nyeed
 
-#### a-abstwact
+#### abstwact
 
-wecent a-advances in computing have made s-stwides in pawawwewization, ʘwʘ whethew
-at a fine-gwained wevew with s-simd instwuctions, (U ﹏ U) ow at a high w-wevew with muwtipwe
-cpu cowes. (ꈍᴗꈍ) taking advantage of these advances, -.- w-we expwowe h-how the usefuw
-t-task of pewfowming an uwu twansfowmation on pwain text can be scawed up to wawge
-i-input datasets. o.O o-ouw contwibutions i-in this papew a-awe thweefowd: fiwst, (⑅˘꒳˘) we pwesent, ( ͡o ω ͡o )
-to ouw knowwedge, (///ˬ///✿) the fiwst wigowous definition o-of uwu'd text. >w< s-second, we show
-ouw nyovew awgowithms f-fow uwu-ing t-text, σωσ expwoiting vectowization a-and
-muwtithweading f-featuwes t-that awe avaiwabwe on modewn cpus. o.O finawwy, -.- we pwovide
-w-wigowous e-expewimentaw wesuwts t-that show how o-ouw impwementation c-couwd be the
-"fastest in the west." in ouw b-benchmawks, o.O we o-obsewve that ouw i-impwementation
-was awmost as a fast as a simpwe f-fiwe copy, ( ͡o ω ͡o ) which i-is entiwewy io-bound. o.O
-w-we bewieve o-ouw wowk has p-potentiaw appwications in vawious d-domains, (U ﹏ U) fwom d-data
-augmentation and text pwepwocessing f-fow nyatuwaw wanguage pwocessing, (U ﹏ U) t-to
-giving authows the a-abiwity to convey potentiawwy whowesome o-ow kawaii~ meme messages
-w-with minimaw time and effowt. (U ﹏ U)
+w-wecent advances i-in computing have made stwides i-in pawawwewization, ʘwʘ whethew
+at a fine-gwained w-wevew with simd instwuctions, (U ﹏ U) o-ow at a high wevew with muwtipwe
+cpu cowes. (ꈍᴗꈍ) taking advantage of t-these advances, -.- w-we expwowe how the u-usefuw
+task of pewfowming an uwu twansfowmation on pwain text can be scawed up t-to wawge
+input d-datasets. o.O ouw contwibutions i-in t-this papew awe thweefowd: fiwst, (⑅˘꒳˘) we pwesent, ( ͡o ω ͡o )
+to ouw knowwedge, (///ˬ///✿) the fiwst wigowous d-definition of u-uwu'd text. >w< second, σωσ we show
+ouw n-nyovew awgowithms f-fow uwu-ing text, o.O expwoiting vectowization a-and
+m-muwtithweading f-featuwes that awe avaiwabwe on modewn cpus. -.- finawwy, o.O w-we pwovide
+w-wigowous expewimentaw w-wesuwts that s-show how ouw i-impwementation couwd be the
+"fastest in the west." i-in ouw benchmawks, ( ͡o ω ͡o ) w-we obsewve t-that ouw impwementation
+was awmost as a fast as a-a simpwe fiwe copy, o.O w-which is entiwewy i-io-bound. (U ﹏ U)
+w-we bewieve ouw w-wowk has potentiaw appwications i-in vawious domains, (U ﹏ U) f-fwom data
+augmentation and text p-pwepwocessing fow nyatuwaw wanguage p-pwocessing, (U ﹏ U) to
+giving authows t-the abiwity to convey potentiawwy w-whowesome ow kawaii~ meme m-messages
+with minimaw time and effowt. (U ᵕ U❁)
 
-*// todo: wwite p-papew*
+*// todo: w-wwite papew*
 
-*// todo: w-wwite mowe about machine weawning so i get funding*
+*// t-todo: wwite mowe about machine weawning so i-i get funding*
 
-### o-ok i nyeed to use this fow something and i nyeed the wicense info
+### ok i nyeed to use this fow something and i nyeed the wicense info
 mit wicense
 
-### ok b-but i have an i-issue with this o-ow a suggestion o-ow a question not a-answewed hewe
+### o-ok but i h-have an issue with t-this ow a suggestion o-ow a question n-nyot answewed hewe
 open an issue, (U ᵕ U❁) be nyice
 
-### wefewences
+### w-wefewences
 * h-https://honk.moe/toows/owo.htmw
-* h-https://github.com/iamwifki/uwuizew
-* https://github.com/deadshot465/owoify_ws
-* h-https://kawaii~kaomoji.com/chawactews/uwu/
-* https://kawaii~kaomoji.com/chawactews/owo/
-* h-https://kawaii~kaomoji.com/chawactews/fwowew-giww/
-* and m-many mowe; wet me know if i missed a-anything
+* https://github.com/iamwifki/uwuizew
+* h-https://github.com/deadshot465/owoify_ws
+* https://kawaii~kaomoji.com/chawactews/uwu/
+* h-https://kawaii~kaomoji.com/chawactews/owo/
+* https://kawaii~kaomoji.com/chawactews/fwowew-giww/
+* a-and many mowe; wet me know i-if i missed anything
