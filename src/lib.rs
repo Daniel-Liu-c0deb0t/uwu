@@ -6,7 +6,7 @@ use std::arch::x86::*;
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
 
-use std::ptr;
+use std::{ptr, str};
 
 pub mod rng;
 use rng::XorShift32;
@@ -34,6 +34,25 @@ fn pad_zeros(bytes: &mut [u8], len: usize) {
     }
 }
 
+/// uwuify a string slice
+///
+/// requires the sse4.1 x86 feature
+///
+/// this is probably fine for one-off use, but not very efficient if called multiple times.
+/// use `uwuify_sse` to reduce memory allocations
+///
+/// # example:
+/// ```
+/// use uwuifier::uwuify_str_sse;
+/// assert_eq!(uwuify_str_sse("hello world"), "hewwo wowwd");
+/// ```
+pub fn uwuify_str_sse(s: &str) -> String {
+    let bytes = s.as_bytes();
+    let mut temp1 = vec![0u8; round_up16(bytes.len()) * 16];
+    let mut temp2 = vec![0u8; round_up16(bytes.len()) * 16];
+    unsafe { str::from_utf8_unchecked(uwuify_sse(bytes, &mut temp1, &mut temp2)).to_owned() }
+}
+
 /// uwuify some bytes
 ///
 /// requires the sse4.1 x86 feature
@@ -43,7 +62,8 @@ fn pad_zeros(bytes: &mut [u8], len: usize) {
 /// hand, but simd :)
 ///
 /// the returned slice is the uwu'd result. when working with utf-8 strings, just pass in
-/// the string as raw bytes and convert the output slice back to a string afterwards
+/// the string as raw bytes and convert the output slice back to a string afterwards.
+/// there's also the `uwuify_str_sse` function that is suitable for one-off use with a string slice
 ///
 /// # example:
 /// ```
@@ -330,13 +350,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_replace_and_stutter_sse() {
+    fn test_uwuify_sse() {
         let mut temp_bytes1 = [0u8; 1024];
         let mut temp_bytes2 = [0u8; 1024];
 
         let s = "Hey... I think I really love you. Do you want a headpat?";
         let res_bytes = uwuify_sse(s.as_bytes(), &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
+        assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
+    }
+
+    #[test]
+    fn test_uwuify_str_sse() {
+        let s = "Hey... I think I really love you. Do you want a headpat?";
+        let res = uwuify_str_sse(s);
         assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
     }
 }

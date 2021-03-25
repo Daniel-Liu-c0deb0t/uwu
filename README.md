@@ -79,13 +79,8 @@ this is on crates.io [here](https://crates.io/crates/uwuify)
 2. the library is called `uwuifier` (slightly different from the name of the binary!)
 use it like so:
 ```rust
-use uwuifier::{uwuify_sse, round_up16};
-let s = "hello world";
-let b = s.as_bytes();
-let mut temp1 = vec![0u8; round_up16(b.len()) * 16];
-let mut temp2 = vec![0u8; round_up16(b.len()) * 16];
-let res = uwuify_sse(b, &mut temp1, &mut temp2);
-assert_eq!(std::str::from_utf8(res).unwrap(), "hewwo wowwd");
+use uwuifier::uwuify_str_sse;
+assert_eq!(uwuify_str_sse("hello world"), "hewwo wowwd");
 ```
 
 documentation is [here](https://docs.rs/uwuify/latest/uwuifier/)
