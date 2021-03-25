@@ -1,3 +1,4 @@
+//! fastest text uwuifier in the west
 #![cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 
 #[cfg(target_arch = "x86")]

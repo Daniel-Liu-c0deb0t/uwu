@@ -78,7 +78,7 @@ this is on crates.io [here](https://crates.io/crates/uwuify)
 1. put `uwuify = "^0.2"` under `[dependencies]` in your `Cargo.toml` file
 2. the library is called `uwuifier` (slightly different from the name of the binary!)
 use it like so:
-```
+```rust
 use uwuifier::{uwuify_sse, round_up16};
 let s = "hello world";
 let b = s.as_bytes();
@@ -234,6 +234,11 @@ mit license
 
 ### ok but i have an issue with this or a suggestion or a question not answered here
 open an issue, be nice
+
+### projects using this
+* [uwu-tray](https://github.com/Olaren15/uwu-tray): a tray icon to uwuify your text
+* [uwubot](https://github.com/yaahc/uwubot): discord bot for uwuifying text
+* let me know if you make a project with uwuify! i appreciate u all!
 
 ### references
 * https://honk.moe/tools/owo.html
