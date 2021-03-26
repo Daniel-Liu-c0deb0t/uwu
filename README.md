@@ -1,245 +1,245 @@
 # uwuify
-fastest text uwuifier in the west
+fastest t-text uwuifiew in t-the west
 
-transforms
+twansfowms
 ```
-Hey... I think I really love you. Do you want a headpat?
+hey... i-i think i weawwy wuv you. OwO do you w-want a headpat?
 ```
 into
 ```
-hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?
+hey... i-i think i w-weawwy wuv you. (⑅˘꒳˘) (⑅˘꒳˘) d-do you want a headpat?
 ```
 
-there's an [uwu'd](README_UWU.txt) version of this readme
+t-thewe's an [uwu'd](weadme_uwu.txt) v-vewsion of this w-weadme
 
 ## faq
-### what?
-u want large amounts of text uwu'd in a smol amount of time
+### n-nyani?
+u want wawge amounts of text uwu'd in a smow amount of time
 
-### where?
-ur computer, if it has a recent x86 cpu (intel, amd) that supports sse4.1
+### whewe?
+uw computew, UwU if i-it has a wecent x86 cpu (intew, (///ˬ///✿) amd) that suppowts sse4.1
 
 ### why?
-why not?
+why nyot?
 
-### how?
-tldr: 128-bit simd vectorization plus some big brain algos
+### h-how?
+twdw: 128-bit s-simd vectowization pwus s-some big bwain awgos
 
-<details>
-<summary>click for more info</summary>
+<detaiws>
+<summawy>cwick fow mowe info</summawy>
 <p>
 
-after hours of research, i've finally understood the essence of uwu'd text
+aftew houws of weseawch, ( ͡o ω ͡o ) i-i've finawwy undewstood the e-essence of uwu'd t-text
 
-there are a few transformations:
-1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
-2. replace `l` and `r` with `w`
-3. stutter sometimes (`hi` -> `h-hi`)
-4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
-5. replace some words (`small` -> `smol`, etc.)
+thewe awe a-a few twansfowmations:
+1. o.O n-nyya-ify (eg. UwU `nawuhodo` -> `nyawuhodo`)
+2. (˘ω˘) wepwace `w` a-and `w` with `w`
+3. (U ᵕ U❁) stuttew sometimes (`hi` -> `h-hi`)
+4. ʘwʘ a-add a-a text emoji aftew p-punctuation (`,`, -.- `.`, ow `!`) sometimes
+5. σωσ wepwace some wowds (`smow` -> `smow`, UwU e-etc.)
 
-these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
-for string searching, i'm using a custom simd implementation of the
-[bitap](https://en.wikipedia.org/wiki/Bitap_algorithm) algorithm for matching against multiple strings.
-for random number generation, i'm using [XorShift32](https://en.wikipedia.org/wiki/Xorshift). for most
-character-level detection within simd registers, its all masking and shifting to simulate basic state
-machines in parallel
+these twansfowmation p-passes take advantage of sse4.1 vectow intwinsics to pwocess 16 bytes at once. σωσ
+f-fow stwing seawching, OwO i'm using a custom simd i-impwementation of the
+[bitap](https://en.wikipedia.owg/wiki/bitap_awgowithm) awgowithm f-fow matching a-against muwtipwe s-stwings. OwO
+fow wandom nyumbew genewation, o.O i'm using [xowshift32](https://en.wikipedia.owg/wiki/xowshift). (U ﹏ U) fow most
+chawactew-wevew detection w-within simd wegistews, σωσ i-its aww masking a-and shifting t-to simuwate b-basic state
+machines i-in pawawwew
 
-multithreading is supported, so u can exploit all of ur cpu cores for the noble goal
-of uwu-ing massive amounts of text
+muwtithweading is suppowted, ʘwʘ so u-u can expwoit aww of uw cpu cowes f-fow the nyobwe goaw
+of uwu-ing m-massive amounts o-of text
 
-utf-8 is handled elegantly by simply ignoring non-ascii characters in the input
+utf-8 is handwed ewegantwy by simpwy ignowing nyon-ascii c-chawactews in the input
 
-unfortunately, due to both simd parallelism and multithreading, some words may not be fully uwu'd
-if they were lucky enough to cross the boundary of a simd vector or a thread's buffer.
-*they won't escape so easily next time*
+unfowtunatewy, (U ﹏ U) due t-to both simd pawawwewism and muwtithweading, some wowds may nyot b-be fuwwy uwu'd
+if they wewe wucky e-enough to cwoss t-the boundawy o-of a simd vectow o-ow a thwead's buffew. (ꈍᴗꈍ)
+*they won't e-escape so easiwy n-nyext time*
 
 </p>
-</details>
+</detaiws>
 
-### ok i want uwu'd text, how do i run this myself?
-#### install command-line tool
-1. install rust: run `curl https://sh.rustup.rs -sSf | sh` on unix,
-or go [here](https://www.rust-lang.org/tools/install) for more options
-2. run `cargo install uwuify`
-3. run `uwuify` which will read from stdin and output to stdout. make sure u
-press ctrl + d (unix) or ctrl + z and enter (windows) after u type stuff in stdin to send an EOF
+### o-ok i want uwu'd text, -.- how d-do i wun this mysewf?
+#### instaww command-wine t-toow
+1. o.O instaww w-wust: wun `cuww https://sh.wustup.ws -ssf | s-sh` on unix, (⑅˘꒳˘)
+ow go [hewe](https://www.wust-wang.owg/toows/instaww) f-fow mowe options
+2. w-wun `cawgo instaww uwuify`
+3. w-wun `uwuify` which w-wiww wead fwom s-stdin and output to stdout. ( ͡o ω ͡o ) m-make suwe u
+pwess ctww + d (unix) o-ow ctww + z and e-entew (windows) a-aftew u type stuff in stdin to s-send an eof
 
-if you are having trouble running `uwuify`, make sure you have `~/.cargo/bin`
-in your `$PATH`
+if y-you awe having twoubwe wunning `uwuify`, (///ˬ///✿) m-make suwe y-you have `~/.cawgo/bin`
+i-in youw `$path`
 
-it is possible to read and write from files by specifying the input file and
-output file, in that order. u can use `--help` for more info. pass in
-`-v` for timings
+i-it i-is possibwe to wead and wwite fwom fiwes by specifying t-the input fiwe and
+output f-fiwe, >w< in that owdew. σωσ u can use `--hewp` fow mowe info. o.O pass in
+`-v` fow timings
 
-this is on crates.io [here](https://crates.io/crates/uwuify)
+this is on cwates.io [hewe](https://cwates.io/cwates/uwuify)
 
-#### include as library
-1. put `uwuify = "^0.2"` under `[dependencies]` in your `Cargo.toml` file
-2. the library is called `uwuifier` (slightly different from the name of the binary!)
-use it like so:
-```rust
-use uwuifier::uwuify_str_sse;
-assert_eq!(uwuify_str_sse("hello world"), "hewwo wowwd");
+#### incwude as w-wibwawy
+1. -.- put `uwuify = "^0.2"` u-undew `[dependencies]` in youw `cawgo.tomw` fiwe
+2. o.O t-the wibwawy i-is cawwed `uwuifiew` (swightwy d-diffewent fwom the nyame of the binawy!)
+use it w-wike so:
+```wust
+use uwuifiew::uwuify_stw_sse;
+assewt_eq!(uwuify_stw_sse("hewwo w-wowwd"), ( ͡o ω ͡o ) "hewwo w-wowwd");
 ```
 
-documentation is [here](https://docs.rs/uwuify/latest/uwuifier/)
+documentation is [hewe](https://docs.ws/uwuify/watest/uwuifiew/)
 
-#### build from this repo
-<details>
-<summary>click for more info</summary>
+#### b-buiwd fwom t-this wepo
+<detaiws>
+<summawy>cwick f-fow mowe info</summawy>
 <p>
 
-1. install rust
-2. run `git clone https://github.com/Daniel-Liu-c0deb0t/uwu.git && cd uwu`
-3. run `cargo run --release`
+1. o.O instaww wust
+2. (U ﹏ U) wun `git cwone https://github.com/daniew-wiu-c0deb0t/uwu.git && cd uwu`
+3. (U ﹏ U) wun `cawgo w-wun --wewease`
 
 ##### testing
-1. run `cargo test`
+1. wun `cawgo t-test`
 
-##### benchmarking
-1. run `mkdir test && cd test`
+##### b-benchmawking
+1. (U ﹏ U) wun `mkdiw test && cd test`
 
-*warning: large files of 100mb and 1gb, respectively*
+*wawning: w-wawge fiwes o-of 100mb and 1gb, (U ᵕ U❁) wespectivewy*
 
-2. run `curl -OL http://mattmahoney.net/dc/enwik8.zip && unzip enwik8.zip`
-3. run `curl -OL http://mattmahoney.net/dc/enwik9.zip && unzip enwik9.zip`
-4. run `cd .. && ./bench.sh`
+2. (U ᵕ U❁) wun `cuww -ow h-http://mattmahoney.net/dc/enwik8.zip && unzip enwik8.zip`
+3. (U ᵕ U❁) wun `cuww -ow http://mattmahoney.net/dc/enwik9.zip && u-unzip enwik9.zip`
+4. (///ˬ///✿) wun `cd .. && ./bench.sh`
 
 </p>
-</details>
+</detaiws>
 
-### i don't believe that this is fast. i need proof!!1!
-tldr: can be almost as fast as simply copying a file
+### i d-don't bewieve that t-this is fast. >w< i-i nyeed pwoof!!1! òωó
+twdw: can be awmost as fast a-as simpwy copying a-a fiwe
 
-<details>
-<summary>click for more info</summary>
+<detaiws>
+<summawy>cwick fow mowe info</summawy>
 <p>
 
-raw numbers from running `./bench.sh` on a 2019 macbook pro with eight
-intel 2.3 ghz i9 cpus and 16 gb of ram are shown below. the dataset
-used is the first 100mb and first 1gb of english wikipedia. the same
-dataset is used for the [hutter prize](http://prize.hutter1.net/)
-for text compression
+w-waw nyumbews fwom w-wunning `./bench.sh` on a 2019 macbook pwo with e-eight
+intew 2.3 ghz i9 cpus and 16 gb of wam awe shown bewow. (˘ω˘) the dataset
+used is the fiwst 100mb a-and fiwst 1gb of engwish wikipedia. ʘwʘ the same
+dataset is used fow the [huttew p-pwize](http://pwize.huttew1.net/)
+f-fow text compwession
 
 ```
-1 thread uwu enwik8
-time taken: 178 ms
+1 thwead u-uwu enwik8
+t-time taken: 178 m-ms
 input size: 100000000 bytes
-output size: 115095591 bytes
-throughput: 0.55992 gb/s
+o-output size: 115095591 b-bytes
+thwoughput: 0.55992 g-gb/s
 
-2 thread uwu enwik8
+2 thwead uwu enwik8
 time taken: 105 ms
-input size: 100000000 bytes
-output size: 115095591 bytes
-throughput: 0.94701 gb/s
+input s-size: 100000000 b-bytes
+output size: 115095591 b-bytes
+thwoughput: 0.94701 g-gb/s
 
-4 thread uwu enwik8
+4 thwead uwu enwik8
 time taken: 60 ms
 input size: 100000000 bytes
-output size: 115095591 bytes
-throughput: 1.64883 gb/s
+o-output size: 115095591 b-bytes
+thwoughput: 1.64883 g-gb/s
 
-8 thread uwu enwik8
+8 thwead u-uwu enwik8
 time taken: 47 ms
-input size: 100000000 bytes
+i-input size: 100000000 bytes
 output size: 115095591 bytes
-throughput: 2.12590 gb/s
+thwoughput: 2.12590 gb/s
 
-copy enwik8
+c-copy enwik8
 
-real	0m0.035s
-user	0m0.001s
-sys	0m0.031s
+weaw	0m0.035s
+usew	0m0.001s
+s-sys	0m0.031s
 
-1 thread uwu enwik9
+1 thwead uwu enwik9
 time taken: 2087 ms
 input size: 1000000000 bytes
 output size: 1149772651 bytes
-throughput: 0.47905 gb/s
+thwoughput: 0.47905 gb/s
 
-2 thread uwu enwik9
+2 thwead uwu enwik9
 time taken: 992 ms
-input size: 1000000000 bytes
-output size: 1149772651 bytes
-throughput: 1.00788 gb/s
+input s-size: 1000000000 bytes
+output s-size: 1149772651 bytes
+thwoughput: 1.00788 gb/s
 
-4 thread uwu enwik9
-time taken: 695 ms
-input size: 1000000000 bytes
+4 t-thwead uwu enwik9
+time taken: 695 m-ms
+input size: 1000000000 b-bytes
 output size: 1149772651 bytes
-throughput: 1.43854 gb/s
+t-thwoughput: 1.43854 gb/s
 
-8 thread uwu enwik9
-time taken: 436 ms
-input size: 1000000000 bytes
-output size: 1149772651 bytes
-throughput: 2.29214 gb/s
+8 t-thwead uwu enwik9
+t-time taken: 436 m-ms
+input size: 1000000000 b-bytes
+output size: 1149772651 b-bytes
+t-thwoughput: 2.29214 gb/s
 
 copy enwik9
 
-real	0m0.387s
-user	0m0.001s
+weaw	0m0.387s
+usew	0m0.001s
 sys	0m0.341s
 ```
 
-*//TODO: compare with other tools*
+*//todo: compawe w-with othew t-toows*
 
 </p>
-</details>
+</detaiws>
 
-### why isn't this readme uwu'd?
-so its readable
+### why isn't this weadme uwu'd?
+so its weadabwe
 
-if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.txt) version
+if u-u happen to find u-uwu'd text mowe weadabwe, (U ᵕ U❁) thewe's a-awways an [uwu'd](weadme_uwu.txt) vewsion
 
-### ok but why aren't there any settings i can change?!1?!!1
-free will is an illusion
+### ok but why awen't t-thewe any settings i can change?!1?!!1
+f-fwee wiww is an iwwusion
 
-### wtf this is so unprofessional how are u gonna get hired at faang now?!
-don't worry, i've got u covered
+### wtf this is so unpwofessionaw h-how awe u g-gonna get hiwed a-at faang now?! (˘ω˘)
+don't wowwy, (ꈍᴗꈍ) i've got u covewed
 
-#### Title: uwu is all you need
+#### titwe: uwu is aww you nyeed
 
-#### Abstract
+#### a-abstwact
 
-Recent advances in computing have made strides in parallelization, whether
-at a fine-grained level with SIMD instructions, or at a high level with multiple
-CPU cores. Taking advantage of these advances, we explore how the useful
-task of performing an uwu transformation on plain text can be scaled up to large
-input datasets. Our contributions in this paper are threefold: first, we present,
-to our knowledge, the first rigorous definition of uwu'd text. Second, we show
-our novel algorithms for uwu-ing text, exploiting vectorization and
-multithreading features that are available on modern CPUs. Finally, we provide
-rigorous experimental results that show how our implementation could be the
-"fastest in the west." In our benchmarks, we observe that our implementation
-was almost as a fast as a simple file copy, which is entirely IO-bound.
-We believe our work has potential applications in various domains, from data
-augmentation and text preprocessing for natural language processing, to
-giving authors the ability to convey potentially wholesome or cute meme messages
-with minimal time and effort.
+w-wecent advances i-in computing have m-made stwides in pawawwewization, (U ᵕ U❁) whethew
+at a fine-gwained wevew with simd instwuctions, UwU o-ow a-at a high wevew with muwtipwe
+cpu c-cowes. (U ﹏ U) taking a-advantage of these advances, (U ﹏ U) we e-expwowe how the u-usefuw
+task of pewfowming a-an uwu twansfowmation on pwain text can b-be scawed up to w-wawge
+input datasets. UwU o-ouw contwibutions i-in this p-papew awe thweefowd: fiwst, -.- we pwesent,
+to ouw k-knowwedge, σωσ the f-fiwst wigowous definition o-of uwu'd text. òωó second, we show
+ouw nyovew a-awgowithms fow u-uwu-ing text, OwO e-expwoiting vectowization a-and
+muwtithweading f-featuwes that awe avaiwabwe o-on modewn c-cpus. (˘ω˘) finawwy, we pwovide
+wigowous e-expewimentaw wesuwts that s-show how ouw impwementation couwd b-be the
+"fastest in the west." i-in ouw benchmawks, (ꈍᴗꈍ) we obsewve that o-ouw impwementation
+was awmost as a fast as a s-simpwe fiwe copy, >w< w-which is entiwewy io-bound. rawr x3
+we bewieve ouw wowk h-has potentiaw appwications in vawious domains, (U ᵕ U❁) fwom data
+augmentation and text pwepwocessing fow n-nyatuwaw wanguage p-pwocessing, σωσ t-to
+giving authows t-the abiwity to c-convey potentiawwy whowesome ow kawaii~ meme messages
+w-with minimaw t-time and effowt. ( ͡o ω ͡o )
 
-*// TODO: write paper*
+*// todo: w-wwite papew*
 
-*// TODO: write more about machine learning so i get funding*
+*// todo: wwite mowe a-about machine weawning so i g-get funding*
 
-### ok i need to use this for something and i need the license info
-mit license
+### ok i nyeed to u-use this fow something a-and i nyeed t-the wicense info
+mit wicense
 
-### ok but i have an issue with this or a suggestion or a question not answered here
-open an issue, be nice
+### o-ok but i have a-an issue with t-this ow a suggestion o-ow a question nyot answewed hewe
+open an issue, (U ᵕ U❁) be nyice
 
-### projects using this
-* [uwu-tray](https://github.com/Olaren15/uwu-tray): a tray icon to uwuify your text
-* [uwubot](https://github.com/yaahc/uwubot): discord bot for uwuifying text
-* let me know if you make a project with uwuify! i appreciate u all!
+### pwojects using t-this
+* [uwu-tway](https://github.com/owawen15/uwu-tway): a tway icon to uwuify youw text
+* [uwubot](https://github.com/yaahc/uwubot): discowd bot fow uwuifying text
+* wet me know if you make a pwoject with uwuify! o.O i appweciate u aww! (˘ω˘)
 
-### references
-* https://honk.moe/tools/owo.html
-* https://github.com/IamRifki/uwuizer
-* https://github.com/deadshot465/owoify_rs
-* https://cutekaomoji.com/characters/uwu/
-* https://cutekaomoji.com/characters/owo/
-* https://cutekaomoji.com/characters/flower-girl/
-* and many more; let me know if i missed anything
+### w-wefewences
+* https://honk.moe/toows/owo.htmw
+* https://github.com/iamwifki/uwuizew
+* h-https://github.com/deadshot465/owoify_ws
+* h-https://kawaii~kaomoji.com/chawactews/uwu/
+* https://kawaii~kaomoji.com/chawactews/owo/
+* h-https://kawaii~kaomoji.com/chawactews/fwowew-giww/
+* a-and many mowe; wet me know if i missed anything
