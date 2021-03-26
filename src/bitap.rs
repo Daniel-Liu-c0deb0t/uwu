@@ -18,6 +18,7 @@ const fn get_masks(patterns: &[&str]) -> [A; 256] {
     const TEMP_A: A = A([0u8; 16]);
     let mut res = [TEMP_A; 256];
     let mut i = 0;
+    let bit5 = 0b0010_0000u8;
 
     while i < patterns.len() {
         let bytes = patterns[i].as_bytes();
@@ -29,6 +30,12 @@ const fn get_masks(patterns: &[&str]) -> [A; 256] {
         while j < bytes.len() {
             let idx = i * 16 + j + offset;
             res[bytes[j] as usize].0[idx / 8] |= 1u8 << (idx % 8);
+
+            // make sure to be case insensitive
+            if bytes[j].is_ascii_alphabetic() {
+                res[(bytes[j] ^ bit5) as usize].0[idx / 8] |= 1u8 << (idx % 8);
+            }
+
             j += 1;
         }
 
@@ -172,6 +179,13 @@ mod tests {
             assert_eq!(b.next(b'h'), None);
             assert_eq!(b.next(b'a'), None);
             assert_eq!(b.next(b'a'), None);
+
+            assert_eq!(b.next(b'W'), None);
+            assert_eq!(b.next(b'h'), None);
+            assert_eq!(b.next(b'A'), None);
+            let next = b.next(b't').unwrap();
+            assert_eq!(next.match_len, 4);
+            assert_eq!(next.replace_len, 4);
         }
     }
 }
