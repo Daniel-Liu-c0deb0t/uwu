@@ -233,6 +233,7 @@ open an issue, be nice
 ### projects using this
 * [uwu-tray](https://github.com/Olaren15/uwu-tray): a tray icon to uwuify your text
 * [uwubot](https://github.com/yaahc/uwubot): discord bot for uwuifying text
+* [uwupedia](http://uwupedia.org/): the uwuified encycwopedia
 * let me know if you make a project with uwuify! i appreciate u all!
 
 ### references
