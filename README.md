@@ -234,6 +234,8 @@ open an issue, be nice
 * [uwu-tray](https://github.com/Olaren15/uwu-tray): a tray icon to uwuify your text
 * [uwubot](https://github.com/yaahc/uwubot): discord bot for uwuifying text
 * [uwupedia](http://uwupedia.org/): the uwuified encycwopedia
+* [discord uwu webhook](https://github.com/bs2kbs2k/discord-uwu-webhook): automatically uwuifies all sent messages on discord via webhooks
+* [twent weznowor](https://twitter.com/twent_weznowor): best twitter bot ever
 * let me know if you make a project with uwuify! i appreciate u all!
 
 ### references
