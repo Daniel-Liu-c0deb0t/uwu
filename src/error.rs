@@ -3,13 +3,13 @@ use std::num::ParseIntError;
 
 #[derive(Error, Debug)]
 pub(crate) enum Error {
-    #[error("The thread count must be a integer")]
+    #[error("the thread count must be a integer")]
     ThreadCountParse(#[from] ParseIntError),
 
-    #[error("Failed to open file")]
+    #[error("failed to open file")]
     FileOpen(std::io::Error),
 
-    #[error("Failed to create file")]
+    #[error("failed to create file")]
     FileCreate(std::io::Error),
 }
 

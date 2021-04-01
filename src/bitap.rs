@@ -76,6 +76,8 @@ static START_MASK: A = get_start_mask(&PATTERNS);
 
 // important note: replacement cannot be more than 2 times longer than the corresponding pattern!
 // this is to prevent increasing the size of the output too much in certain cases
+// another note: this table has a fixed size of 8 and expanding it will require changing the
+// algorithm a little
 static REPLACE: [A; 8] = [
     str_to_bytes("smol"),
     str_to_bytes("kawaii~"),

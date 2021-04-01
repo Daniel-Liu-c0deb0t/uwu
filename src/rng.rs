@@ -1,8 +1,10 @@
 // xorshift32
 // literally one of the simplest and fastest RNGs
+// augmented with a simple counter like "xorwow"
 
 pub struct XorShift32 {
-    state: u32
+    state: u32,
+    counter: u32
 }
 
 impl XorShift32 {
@@ -13,7 +15,7 @@ impl XorShift32 {
         state |= (seed[1] as u32) << 8;
         state |= (seed[2] as u32) << 16;
         state |= (seed[3] as u32) << 24;
-        XorShift32 { state }
+        XorShift32 { state: state | 1, counter: state }
     }
 
     #[inline(always)]
@@ -21,7 +23,8 @@ impl XorShift32 {
         self.state ^= self.state << 13;
         self.state ^= self.state >> 17;
         self.state ^= self.state << 5;
-        self.state
+        self.counter = self.counter.wrapping_add(1234567891u32);
+        self.state.wrapping_add(self.counter)
     }
 
     #[inline(always)]

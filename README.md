@@ -3,11 +3,11 @@ fastest text uwuifier in the west
 
 transforms
 ```
-Hey... I think I really love you. Do you want a headpat?
+Hey, I think I really love you. Do you want a headpat?
 ```
 into
 ```
-hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?
+hey, (ꈍᴗꈍ) i think i weawwy wuv you. ^•ﻌ•^ do y-you want a headpat?
 ```
 
 there's an [uwu'd](README_UWU.txt) version of this readme
@@ -32,11 +32,11 @@ tldr: 128-bit simd vectorization plus some big brain algos
 after hours of research, i've finally understood the essence of uwu'd text
 
 there are a few transformations:
-1. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
-2. replace `l` and `r` with `w`
-3. stutter sometimes (`hi` -> `h-hi`)
-4. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
-5. replace some words (`small` -> `smol`, etc.)
+1. replace some words (`small` -> `smol`, etc.)
+2. nya-ify (eg. `naruhodo` -> `nyaruhodo`)
+3. replace `l` and `r` with `w`
+4. stutter sometimes (`hi` -> `h-hi`)
+5. add a text emoji after punctuation (`,`, `.`, or `!`) sometimes
 
 these transformation passes take advantage of sse4.1 vector intrinsics to process 16 bytes at once.
 for string searching, i'm using a custom simd implementation of the

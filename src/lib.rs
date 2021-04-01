@@ -136,6 +136,7 @@ const fn str_to_bytes(s: &str) -> A {
     res
 }
 
+// this lookup table needs to be power of two sized
 const LUT_SIZE: usize = 32;
 static LUT: [A; LUT_SIZE] = [
     str_to_bytes(" rawr x3"),
@@ -370,16 +371,16 @@ mod tests {
         let mut temp_bytes1 = [0u8; 1024];
         let mut temp_bytes2 = [0u8; 1024];
 
-        let s = "Hey... I think I really love you. Do you want a headpat?";
+        let s = "Hey, I think I really love you. Do you want a headpat?";
         let res_bytes = uwuify_sse(s.as_bytes(), &mut temp_bytes1, &mut temp_bytes2);
         let res = str::from_utf8(res_bytes).unwrap();
-        assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
+        assert_eq!(res, "hey, (ꈍᴗꈍ) i think i weawwy wuv you. ^•ﻌ•^ do y-you want a headpat?");
     }
 
     #[test]
     fn test_uwuify_str_sse() {
-        let s = "Hey... I think I really love you. Do you want a headpat?";
+        let s = "Hey, I think I really love you. Do you want a headpat?";
         let res = uwuify_str_sse(s);
-        assert_eq!(res, "hey... i think i w-weawwy wuv you. (⑅˘꒳˘) d-do you want a headpat?");
+        assert_eq!(res, "hey, (ꈍᴗꈍ) i think i weawwy wuv you. ^•ﻌ•^ do y-you want a headpat?");
     }
 }
