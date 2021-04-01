@@ -136,7 +136,7 @@ const fn str_to_bytes(s: &str) -> A {
     res
 }
 
-const LUT_SIZE: usize = 16;
+const LUT_SIZE: usize = 32;
 static LUT: [A; LUT_SIZE] = [
     str_to_bytes(" rawr x3"),
     str_to_bytes(" OwO"),
@@ -153,7 +153,23 @@ static LUT: [A; LUT_SIZE] = [
     str_to_bytes(" (///ˬ///✿)"),
     str_to_bytes(" (U ﹏ U)"),
     str_to_bytes(" ( ͡o ω ͡o )"),
-    str_to_bytes(" ʘwʘ")
+    str_to_bytes(" ʘwʘ"),
+    str_to_bytes(" :3"),
+    str_to_bytes(" :3"), // important enough to have twice
+    str_to_bytes(" XD"),
+    str_to_bytes(" nyaa~~"),
+    str_to_bytes(" mya"),
+    str_to_bytes(" >_<"),
+    str_to_bytes(" 😳"),
+    str_to_bytes(" 🥺"),
+    str_to_bytes(" 😳😳😳"),
+    str_to_bytes(" rawr"),
+    str_to_bytes(" ^^"),
+    str_to_bytes(" ^^;;"),
+    str_to_bytes(" (ˆ ﻌ ˆ)♡"),
+    str_to_bytes(" ^•ﻌ•^"),
+    str_to_bytes(" /(^•ω•^)"),
+    str_to_bytes(" (✿oωo)")
 ];
 
 const fn bytes_len(b: &[u8]) -> usize {
