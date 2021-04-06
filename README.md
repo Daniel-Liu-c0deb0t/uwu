@@ -236,7 +236,8 @@ open an issue, be nice
 * [uwupedia](http://uwupedia.org/): the uwuified encycwopedia
 * [discord uwu webhook](https://github.com/bs2kbs2k/discord-uwu-webhook): automatically uwuifies all sent messages on discord via webhooks
 * [twent weznowor](https://twitter.com/twent_weznowor): best twitter bot ever
-* let me know if you make a project with uwuify! i appreciate u all!
+* [alaia](https://github.com/TheRealKizu/Alaia/tree/master): a simple yet powerful intuitive chatbot for discord
+* let me know if u make a project with uwuify! i appreciate u all!
 
 ### references
 * https://honk.moe/tools/owo.html
