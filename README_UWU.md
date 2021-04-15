@@ -25,8 +25,8 @@ why nyot?
 ### how?
 twdw: 128-bit simd vectowization pwus some big bwain a-awgos
 
-<detaiws>
-<summawy>cwick fow mowe info</summawy>
+<details>
+<summary>cwick fow mowe info</summary>
 <p>
 
 aftew houws of weseawch, (U ﹏ U) i've finawwy undewstood t-the essence of uwu'd text
@@ -55,7 +55,7 @@ if they wewe wucky enough to cwoss the boundawy of a simd vectow ow a thwead's b
 *they won't escape s-so easiwy nyext t-time*
 
 </p>
-</detaiws>
+</details>
 
 ### o-ok i want uwu'd text, >w< h-how do i wun this m-mysewf?
 #### i-instaww command-wine t-toow
@@ -86,8 +86,8 @@ assewt_eq!(uwuify_stw_sse("hewwo wowwd"), σωσ "hewwo wowwd");
 d-documentation i-is [hewe](https://docs.ws/uwuify/watest/uwuifiew/)
 
 #### b-buiwd fwom this wepo
-<detaiws>
-<summawy>cwick f-fow mowe i-info</summawy>
+<details>
+<summary>cwick f-fow mowe i-info</summary>
 <p>
 
 1. instaww w-wust
@@ -107,13 +107,13 @@ d-documentation i-is [hewe](https://docs.ws/uwuify/watest/uwuifiew/)
 4. σωσ wun `cd .. && ./bench.sh`
 
 </p>
-</detaiws>
+</details>
 
 ### i-i don't bewieve that this is fast. (///ˬ///✿) i nyeed pwoof!!1! (U ﹏ U)
 t-twdw: can b-be awmost as fast as simpwy copying a fiwe
 
-<detaiws>
-<summawy>cwick fow mowe i-info</summawy>
+<details>
+<summary>cwick fow mowe i-info</summary>
 <p>
 
 w-waw numbews fwom wunning `./bench.sh` on a 2019 macbook pwo w-with eight
@@ -187,7 +187,7 @@ s-sys	0m0.341s
 *//todo: c-compawe with othew toows*
 
 </p>
-</detaiws>
+</details>
 
 ### w-why isn't this w-weadme uwu'd?
 so its weadabwe
