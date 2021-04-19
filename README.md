@@ -237,6 +237,7 @@ open an issue, be nice
 * [discord uwu webhook](https://github.com/bs2kbs2k/discord-uwu-webhook): automatically uwuifies all sent messages on discord via webhooks
 * [twent weznowor](https://twitter.com/twent_weznowor): best twitter bot ever
 * [alaia](https://github.com/TheRealKizu/Alaia/tree/master): a simple yet powerful intuitive chatbot for discord
+* [uwuify-mdbook](https://github.com/alyti/uwuify-mdbook): an mdbook pre-processor for all your uwuify needs
 * let me know if u make a project with uwuify! i appreciate u all!
 
 ### references
