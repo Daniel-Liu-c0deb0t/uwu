@@ -238,6 +238,7 @@ open an issue, be nice
 * [twent weznowor](https://twitter.com/twent_weznowor): best twitter bot ever
 * [alaia](https://github.com/TheRealKizu/Alaia/tree/master): a simple yet powerful intuitive chatbot for discord
 * [uwuify-mdbook](https://github.com/alyti/uwuify-mdbook): an mdbook pre-processor for all your uwuify needs
+* [uwu-joke](https://github.com/joshualeejunyi/uwu-joke): automatically uwuifies typed text and text copied to your clipboard
 * let me know if u make a project with uwuify! i appreciate u all!
 
 ### references
