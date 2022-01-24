@@ -4,18 +4,21 @@
 
 pub struct XorShift32 {
     state: u32,
-    counter: u32
+    counter: u32,
 }
 
 impl XorShift32 {
     #[inline(always)]
     pub fn new(seed: &[u8; 4]) -> Self {
         let mut state = 0u32;
-        state |= (seed[0] as u32) << 0;
+        state |= seed[0] as u32;
         state |= (seed[1] as u32) << 8;
         state |= (seed[2] as u32) << 16;
         state |= (seed[3] as u32) << 24;
-        XorShift32 { state: state | 1, counter: state }
+        XorShift32 {
+            state: state | 1,
+            counter: state,
+        }
     }
 
     #[inline(always)]
