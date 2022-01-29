@@ -195,7 +195,7 @@ so its readable
 if u happen to find uwu'd text more readable, there's always an [uwu'd](README_UWU.txt) version
 
 ### ok but why aren't there any settings i can change?!1?!!1
-free will is an illusion
+with hegel, as imparted by friedrich engels in the anti Dühring, freedom is the insight into necessity
 
 ### wtf this is so unprofessional how are u gonna get hired at faang now?!
 don't worry, i've got u covered
