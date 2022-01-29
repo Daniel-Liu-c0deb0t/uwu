@@ -214,7 +214,7 @@ our novel algorithms for uwu-ing text, exploiting vectorization and
 multithreading features that are available on modern CPUs. Finally, we provide
 rigorous experimental results that show how our implementation could be the
 "fastest in the west." In our benchmarks, we observe that our implementation
-was almost as a fast as a simple file copy, which is entirely IO-bound.
+was almost as fast as a simple file copy, which is entirely IO-bound.
 We believe our work has potential applications in various domains, from data
 augmentation and text preprocessing for natural language processing, to
 giving authors the ability to convey potentially wholesome or cute meme messages
