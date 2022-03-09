@@ -1,6 +1,6 @@
 use uwuifier::uwuify_sse;
 
-use clap::{App, Arg, ArgMatches};
+use clap::{Command, Arg, ArgMatches};
 
 use parking_lot::Mutex;
 
@@ -23,26 +23,26 @@ mod error;
 use error::{Error, Result};
 
 fn main() {
-    let matches = App::new("uwu")
+    let matches = Command::new("uwu")
         .about("fastest text uwuifier in the west")
-        .arg(Arg::with_name("INPUT")
+        .arg(Arg::new("INPUT")
              .help("input text file")
              .default_value("-")
              .index(1))
-        .arg(Arg::with_name("OUTPUT")
+        .arg(Arg::new("OUTPUT")
              .help("output text file")
              .default_value("-")
              .index(2))
-        .arg(Arg::with_name("threads")
+        .arg(Arg::new("threads")
              .help("number of threads")
-             .short("t")
+             .short('t')
              .long("threads")
              .value_name("THREADS")
              .takes_value(true)
              .default_value("1"))
-        .arg(Arg::with_name("verbose")
+        .arg(Arg::new("verbose")
              .help("show verbose output, including run time and throughput")
-             .short("v")
+             .short('v')
              .long("verbose"))
         .get_matches();
 
