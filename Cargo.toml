@@ -12,10 +12,10 @@ keywords = ["SIMD", "uwu", "owo", "cli"]
 categories = ["algorithms", "hardware-support", "text-processing", "command-line-utilities"]
 
 [dependencies]
-clap = { version = "^2.33", optional = true }
-owo-colors = { version = "1.3", optional = true }
+clap = { version = "3.1", optional = true }
+owo-colors = { version = "3.2", optional = true }
 thiserror = { version = "1", optional = true }
-parking_lot = "^0.11"
+parking_lot = "0.12"
 
 [features]
 default = ["bin"]
