@@ -10,7 +10,7 @@ into
 hey, (ꈍᴗꈍ) i think i weawwy wuv you. ^•ﻌ•^ do y-you want a headpat?
 ```
 
-there's an [uwu'd](README_UWU.txt) version of this readme
+there's an [uwu'd](README_UWU.md) version of this readme
 
 ## faq
 ### what?
