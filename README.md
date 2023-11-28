@@ -240,6 +240,7 @@ open an issue, be nice
 * [uwuify-mdbook](https://github.com/alyti/uwuify-mdbook): an mdbook pre-processor for all your uwuify needs
 * [uwu-joke](https://github.com/joshualeejunyi/uwu-joke): automatically uwuifies typed text and text copied to your clipboard
 * [discordbot (go)](https://github.com/angch/discordbot): discord (and telegram and slack) bot for fun
+* [Rust in Chromium](https://google.github.io/comprehensive-rust/chromium.html): an exercise in integrating Rust with Chromium
 * let me know if u make a project with uwuify! i appreciate u all!
 
 ### references
