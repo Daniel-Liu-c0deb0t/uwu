@@ -1,16 +1,16 @@
-use uwuifier::uwuify_sse;
+use uwuifier::uwuify;
 
 use clap::{App, Arg, ArgMatches};
 
 use parking_lot::Mutex;
 
-use std::io::prelude::*;
-use std::io;
-use std::fs::File;
-use std::sync::Arc;
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::thread;
 use std::collections::HashMap;
+use std::fs::File;
+use std::io;
+use std::io::prelude::*;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
+use std::thread;
 use std::time::Instant;
 
 use owo_colors::OwoColorize;
@@ -25,25 +25,33 @@ use error::{Error, Result};
 fn main() {
     let matches = App::new("uwu")
         .about("fastest text uwuifier in the west")
-        .arg(Arg::with_name("INPUT")
-             .help("input text file")
-             .default_value("-")
-             .index(1))
-        .arg(Arg::with_name("OUTPUT")
-             .help("output text file")
-             .default_value("-")
-             .index(2))
-        .arg(Arg::with_name("threads")
-             .help("number of threads")
-             .short("t")
-             .long("threads")
-             .value_name("THREADS")
-             .takes_value(true)
-             .default_value("1"))
-        .arg(Arg::with_name("verbose")
-             .help("show verbose output, including run time and throughput")
-             .short("v")
-             .long("verbose"))
+        .arg(
+            Arg::new("INPUT")
+                .help("input text file")
+                .default_value("-")
+                .index(1),
+        )
+        .arg(
+            Arg::new("OUTPUT")
+                .help("output text file")
+                .default_value("-")
+                .index(2),
+        )
+        .arg(
+            Arg::new("threads")
+                .help("number of threads")
+                .short('t')
+                .long("threads")
+                .value_name("THREADS")
+                .takes_value(true)
+                .default_value("1"),
+        )
+        .arg(
+            Arg::new("verbose")
+                .help("show verbose output, including run time and throughput")
+                .short('v')
+                .long("verbose"),
+        )
         .get_matches();
 
     if let Some(err) = main_inner(matches).err() {
@@ -80,13 +88,20 @@ fn main_inner(matches: ArgMatches) -> Result<()> {
         eprintln!("time taken: {} ms", duration.as_millis());
         eprintln!("input size: {} bytes", input_size);
         eprintln!("output size: {} bytes", output_size);
-        eprintln!("throughput: {:.5} gb/s", (input_size as f64) / (duration.as_nanos() as f64));
+        eprintln!(
+            "throughput: {:.5} gb/s",
+            (input_size as f64) / (duration.as_nanos() as f64)
+        );
     }
 
     Ok(())
 }
 
-fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thread_count: usize) -> (usize, usize) {
+fn parallel_uwu(
+    reader: Box<dyn Read + Send>,
+    writer: Box<dyn Write + Send>,
+    thread_count: usize,
+) -> (usize, usize) {
     let input_size = Arc::new(AtomicUsize::new(0));
     let output_size = Arc::new(AtomicUsize::new(0));
     let reader_idx = Arc::new(Mutex::new((reader, 0usize)));
@@ -122,7 +137,7 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
 
                 input_size.fetch_add(len, Ordering::Relaxed);
                 // core uwuifier code
-                let res = uwuify_sse(&bytes[..len], &mut temp_bytes1, &mut temp_bytes2);
+                let res = uwuify(&bytes[..len], &mut temp_bytes1, &mut temp_bytes2);
                 output_size.fetch_add(res.len(), Ordering::Relaxed);
 
                 idx_thread.lock().insert(read_idx, thread::current());
@@ -159,21 +174,24 @@ fn parallel_uwu(reader: Box<dyn Read + Send>, writer: Box<dyn Write + Send>, thr
         thread.join().unwrap();
     }
 
-    (Arc::try_unwrap(input_size).unwrap().into_inner(), Arc::try_unwrap(output_size).unwrap().into_inner())
+    (
+        Arc::try_unwrap(input_size).unwrap().into_inner(),
+        Arc::try_unwrap(output_size).unwrap().into_inner(),
+    )
 }
 
 fn read_as_much_as_possible(reader: &mut Box<dyn Read + Send>, mut bytes: &mut [u8]) -> usize {
     // guarantees that the only chunk that does not fill bytes is the last chunk
     let mut res = 0;
-    while bytes.len() > 0 {
-        match reader.read(&mut bytes) {
+    while !bytes.is_empty() {
+        match reader.read(bytes) {
             Ok(len) if len == 0 => break,
             Ok(len) => {
                 bytes = &mut bytes[len..];
                 res += len;
-            },
+            }
             Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
-            Err(e) => panic!("{}", e)
+            Err(e) => panic!("{}", e),
         }
     }
     res

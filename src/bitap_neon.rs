@@ -1,15 +1,15 @@
-#![cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#![cfg(any(target_arch = "arm", target_arch = "aarch64"))]
 
-#[cfg(target_arch = "x86")]
-use std::arch::x86::*;
-#[cfg(target_arch = "x86_64")]
-use std::arch::x86_64::*;
+#[cfg(target_arch = "aarch64")]
+use std::arch::aarch64::*;
+#[cfg(target_arch = "arm")]
+use std::arch::arm::*;
 
 use super::{bytes_len, str_to_bytes, A};
 
 pub struct Bitap8x16 {
-    v: __m128i,
-    start_mask: __m128i,
+    v: int32x4_t,
+    start_mask: uint8x16_t,
 }
 
 const fn get_masks(patterns: &[&str]) -> [A; 256] {
@@ -98,39 +98,48 @@ const fn get_len(a: &[A]) -> [usize; 8] {
 
 static REPLACE_LEN: [usize; 8] = get_len(&REPLACE);
 
+#[inline(always)]
+pub unsafe fn movemask(a: uint8x16_t) -> i32 {
+    let high_bits = vreinterpretq_u16_u8(vshrq_n_u8::<7>(a));
+    let paired16 = vreinterpretq_u32_u16(vsraq_n_u16::<7>(high_bits, high_bits));
+    let paired32 = vreinterpretq_u64_u32(vsraq_n_u32::<14>(paired16, paired16));
+    let paired64 = vreinterpretq_u8_u64(vsraq_n_u64::<28>(paired32, paired32));
+    vgetq_lane_u8::<0>(paired64) as i32 | ((vgetq_lane_u8::<8>(paired64) as i32) << 8)
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Match {
     pub match_len: usize,
-    pub replace_ptr: *const __m128i,
+    pub replace_ptr: *const int32x4_t,
     pub replace_len: usize,
 }
 
 impl Bitap8x16 {
     #[inline]
-    #[target_feature(enable = "sse4.1")]
+    #[target_feature(enable = "neon")]
     pub unsafe fn new() -> Self {
         Self {
-            v: _mm_setzero_si128(),
-            start_mask: _mm_load_si128(START_MASK.0.as_ptr() as *const __m128i),
+            v: vdupq_n_s32(0),
+            start_mask: vld1q_u8(START_MASK.0.as_ptr()),
         }
     }
 
     #[inline]
-    #[target_feature(enable = "sse4.1")]
+    #[target_feature(enable = "neon")]
     pub unsafe fn next(&mut self, c: u8) -> Option<Match> {
-        self.v = _mm_slli_epi16(self.v, 1);
-        self.v = _mm_or_si128(self.v, self.start_mask);
-        let mask = _mm_load_si128(MASKS.get_unchecked(c as usize).0.as_ptr() as *const __m128i);
-        self.v = _mm_and_si128(self.v, mask);
+        self.v = vreinterpretq_s32_s16(vshlq_n_s16::<1>(vreinterpretq_s16_s32(self.v)));
+        self.v = vorrq_s32(self.v, vreinterpretq_s32_u8(self.start_mask));
+        let mask = vld1q_u8(MASKS.get_unchecked(c as usize).0.as_ptr());
+        self.v = vandq_s32(self.v, vreinterpretq_s32_u8(mask));
 
-        let match_mask = (_mm_movemask_epi8(self.v) as u32) & 0xAAAAAAAAu32;
+        let match_mask = (movemask(vreinterpretq_u8_s32(self.v)) as u32) & 0xAAAAAAAAu32;
 
         if match_mask != 0 {
             let match_idx = (match_mask.trailing_zeros() as usize) / 2;
 
             return Some(Match {
                 match_len: PATTERNS.get_unchecked(match_idx).len(),
-                replace_ptr: REPLACE.get_unchecked(match_idx).0.as_ptr() as *const __m128i,
+                replace_ptr: REPLACE.get_unchecked(match_idx).0.as_ptr() as *const int32x4_t,
                 replace_len: *REPLACE_LEN.get_unchecked(match_idx),
             });
         }
@@ -139,9 +148,9 @@ impl Bitap8x16 {
     }
 
     #[inline]
-    #[target_feature(enable = "sse4.1")]
+    #[target_feature(enable = "neon")]
     pub unsafe fn reset(&mut self) {
-        self.v = _mm_setzero_si128();
+        self.v = vdupq_n_s32(0);
     }
 }
 
@@ -151,10 +160,6 @@ mod tests {
 
     #[test]
     fn test_bitap() {
-        if !is_x86_feature_detected!("sse4.1") {
-            panic!("sse4.1 feature not detected!");
-        }
-
         unsafe {
             let mut b = Bitap8x16::new();
             assert_eq!(b.next(b'c'), None);
