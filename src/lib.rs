@@ -1,8 +1,5 @@
 //! fastest text uwuifier in the west
 
-#![feature(arm_target_feature)]
-#![feature(aarch64_target_feature)]
-#![feature(stdsimd)]
 #![allow(clippy::missing_safety_doc)]
 
 pub mod bitap;
